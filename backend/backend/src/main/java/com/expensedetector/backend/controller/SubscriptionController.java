@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/subscriptions")
 public class SubscriptionController {
     private final SubscriptionsRepository subscriptionsRepository;
     private final MerchantRepository merchantRepository;
@@ -24,7 +24,7 @@ public class SubscriptionController {
         this.merchantRepository = merchantRepository;
     }
 
-    @GetMapping("/subscriptions")
+    @GetMapping()
     public ResponseEntity<List<SubscriptionsDTO>> getSubscriptions(Authentication authentication) {
         UUID user_id = UUID.fromString(authentication.getName());
 
