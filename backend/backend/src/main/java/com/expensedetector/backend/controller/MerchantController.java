@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/merchants")
 public class MerchantController {
     private final MerchantRepository merchantRepository;
     private final CategoryRepository categoryRepository;
@@ -31,7 +31,7 @@ public class MerchantController {
         this.merchantAliasRepository = merchantAliasRepository;
     }
 
-    @GetMapping("/merchants")
+    @GetMapping()
     public ResponseEntity<List<MerchantDTO>> getMerchants(Authentication authentication) {
         UUID user_id = UUID.fromString(authentication.getName());
         List<MerchantDTO> merchantDtos = merchantRepository.findByUserId(user_id).orElse(List.of())
