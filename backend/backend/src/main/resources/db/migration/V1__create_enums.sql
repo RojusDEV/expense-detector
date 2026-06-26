@@ -1,0 +1,9 @@
+DO $$ BEGIN
+CREATE TYPE role_type AS ENUM ('USER', 'ADMIN');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+CREATE TYPE anomaly_type AS ENUM ('CATEGORY_SPIKE', 'SINGLE_TRANSACTION');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;

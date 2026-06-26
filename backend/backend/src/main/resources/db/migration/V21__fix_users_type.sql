@@ -1,0 +1,3 @@
+ALTER TABLE users ALTER COLUMN uploadCount SET DEFAULT 0;
+UPDATE users SET uploadCount = 0 WHERE uploadCount IS NULL;
+ALTER TABLE users ALTER COLUMN uploadCount SET NOT NULL;

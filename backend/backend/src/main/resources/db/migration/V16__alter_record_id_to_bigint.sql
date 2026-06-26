@@ -1,0 +1,1 @@
+ALTER TABLE transactions ALTER COLUMN record_id TYPE BIGINT;

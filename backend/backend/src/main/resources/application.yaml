@@ -1,0 +1,25 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  application:
+    name: backend
+  datasource:
+    url: jdbc:postgresql://localhost:5433/expense_detector
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+  flyway:
+    enabled: true
+
+server:
+  port: 8000
+
+app:
+    jwtSecret: ${JWTSecret}
+    jwtExpirationMs: 864000000
+    jwtCookieName: expense
