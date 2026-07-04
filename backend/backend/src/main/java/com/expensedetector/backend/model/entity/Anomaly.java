@@ -8,11 +8,6 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.UUID;
 
-enum anomaly_type {
-    CATEGORY_SPIKE,
-    SINGLE_TRANSACTION
-}
-
 @Entity
 @Table(name="anomalies")
 @Data
@@ -24,7 +19,7 @@ public class Anomaly {
         private UUID user_id;
         @NotNull
         @Enumerated(EnumType.STRING)
-        private anomaly_type anomaly_type;
+        private AnomalyType anomaly_type;
 
         @Column(name = "category_id")
         private int categoryId;
