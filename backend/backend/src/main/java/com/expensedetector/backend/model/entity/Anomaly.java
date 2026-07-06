@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.UUID;
@@ -16,7 +17,8 @@ public class Anomaly {
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private UUID id;
         @NotNull
-        private UUID user_id;
+        @Column(name = "user_id")
+        private UUID userId;
         @NotNull
         @Enumerated(EnumType.STRING)
         private AnomalyType anomaly_type;
