@@ -20,6 +20,10 @@ server:
   port: 8000
 
 app:
-    jwtSecret: ${JWTSecret}
-    jwtExpirationMs: 864000000
-    jwtCookieName: expense
+  jwtSecret: ${JWTSecret}
+  jwtExpirationMs: 864000000
+  jwtCookieName: expense
+
+logging:
+  level:
+    org.hibernate.tool.schema: DEBUG
