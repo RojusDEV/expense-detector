@@ -143,6 +143,15 @@
 					</argLine>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<configuration>
+					<url>jdbc:postgresql://localhost:5433/expense_detector</url>
+<!--					<user></user>-->
+<!--					<password></password>-->
+				</configuration>
+			</plugin>
 		</plugins>
 
 	</build>
