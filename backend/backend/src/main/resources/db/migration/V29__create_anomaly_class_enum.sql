@@ -1,0 +1,4 @@
+DO $$ BEGIN
+CREATE TYPE anomaly_class AS ENUM ('TRANSACTION', 'CATEGORY');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
