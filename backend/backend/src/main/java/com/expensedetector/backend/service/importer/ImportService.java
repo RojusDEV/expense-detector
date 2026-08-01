@@ -1,5 +1,6 @@
 package com.expensedetector.backend.service.importer;
 
+import com.expensedetector.backend.event.ImportCompletedEvent;
 import com.expensedetector.backend.model.entity.*;
 import com.expensedetector.backend.payload.response.FileUploadResponse;
 import com.expensedetector.backend.repository.MerchantAliasRepository;
@@ -13,7 +14,9 @@ import com.expensedetector.backend.service.importer.normalizer.SwedbankNormalize
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -32,13 +35,17 @@ public class ImportService {
     private final CategoryService categoryService;
     private final MerchantRepository merchantRepository;
     private final MerchantAliasRepository aliasRepository;
+    private final ApplicationEventPublisher eventPublisher;
+
     public ImportService(UserRepository userRepository,
                          TransactionsRepository transactionsRepository,
                          SwedbankNormalizer swedbankNormalizer,
                          RevolutNormalizer revolutNormalizer,
-                         MerchantService merchantService, CategoryService categoryService,
+                         MerchantService merchantService,
+                         CategoryService categoryService,
                          MerchantRepository merchantRepository,
-                         MerchantAliasRepository aliasRepository) {
+                         MerchantAliasRepository aliasRepository,
+                         ApplicationEventPublisher eventPublisher) {
         this.userRepository = userRepository;
         this.transactionsRepository = transactionsRepository;
         this.merchantService = merchantService;
@@ -49,6 +56,7 @@ public class ImportService {
         );
         this.merchantRepository = merchantRepository;
         this.aliasRepository = aliasRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     public int getUserUploadCount(UUID userId) {
@@ -76,6 +84,24 @@ public class ImportService {
         return true;
     }
 
+    private String normalizeRawDescription(String raw) {
+        if (raw == null) return "";
+        return raw.trim().replaceAll("\\s+", " ");
+    }
+
+    private String buildDedupKey(Transaction t) {
+        String amount = t.getAmount() == null
+                ? ""
+                : t.getAmount().stripTrailingZeros().toPlainString();
+        String date = t.getTransactionDate() == null
+                ? ""
+                : t.getTransactionDate().toString();
+        return date
+                + "|" + amount
+                + "|" + normalizeRawDescription(t.getRawDescription());
+    }
+
+    @Transactional
     public FileUploadResponse importFromCsv(MultipartFile file, UUID userId) {
         try {
             Users user = userRepository.findById(userId).orElseThrow();
@@ -86,14 +112,18 @@ public class ImportService {
             }
 
             Set<String> existingKeys = transactionsRepository.findByUserId(userId).stream()
-                    .map(t -> t.getTransactionDate() + "|" + t.getAmount() + "|" + t.getRawDescription())
+                    .map(this::buildDedupKey)
                     .collect(Collectors.toSet());
 
-            try (CSVReader csvReader = new CSVReaderBuilder(new InputStreamReader(file.getInputStream(), Charset.forName("ISO-8859-13")))
+            try (CSVReader csvReader = new CSVReaderBuilder(
+                    new InputStreamReader(file.getInputStream(), Charset.forName("ISO-8859-13")))
                     .withSkipLines(1).build()) {
+
                 List<Transaction> transactions = new ArrayList<>();
                 Set<String> seenAliasKeys = new HashSet<>();
                 Map<String, Merchant> merchantCache = new HashMap<>();
+                Map<String, Optional<Category>> categoryCache = new HashMap<>();
+
                 String[] row;
                 int duplicates = 0;
 
@@ -105,33 +135,45 @@ public class ImportService {
                             name -> merchantService.findOrCreate(name, userId));
                     boolean isGlobalMerchant = m.getUserId() == null;
 
-                    Optional<Category> category = categoryService.findByKeywords(m.getName(), row[4]);
+                    final String rawCategoryHint = row[4];
+                    String categoryCacheKey = m.getName() + "|" + rawCategoryHint;
+                    Optional<Category> category = categoryCache.computeIfAbsent(
+                            categoryCacheKey,
+                            k -> {
+                                try {
+                                    return categoryService.findByKeywords(m.getName(), rawCategoryHint);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            });
                     Transaction t = normalizer.normalizeTransaction(row, user, m, category);
+
+                    t.setRawDescription(normalizeRawDescription(t.getRawDescription()));
+
+                    String key = buildDedupKey(t);
+                    if (!existingKeys.add(key)) {
+                        duplicates++;
+                        continue;
+                    }
 
                     if (!isGlobalMerchant) {
                         category.map(Category::getId).ifPresent(m::setCategoryId);
                         merchantRepository.save(m);
                     }
 
-
-                    String key = t.getTransactionDate() + "|" + t.getAmount() + "|" + t.getRawDescription();
-                    boolean exists = existingKeys.contains(key);
-
-                    if (!exists) {
-                        String aliasKey = m.getId() + "|" + merchantName;
-                        if (seenAliasKeys.add(aliasKey)
-                                && !aliasRepository.existsByMerchantIdAndRawName(m.getId(), merchantName)) {
-                            aliasRepository.save(new MerchantAlias(merchantName, m.getId(), 1.0));
-                        }
-                        transactions.add(t);
-                        existingKeys.add(key);
-                    } else {
-                        duplicates++;
+                    String aliasKey = m.getId() + "|" + merchantName;
+                    if (seenAliasKeys.add(aliasKey)
+                            && !aliasRepository.existsByMerchantIdAndRawName(m.getId(), merchantName)) {
+                        aliasRepository.save(new MerchantAlias(merchantName, m.getId(), 1.0));
                     }
+
+                    transactions.add(t);
                 }
 
                 transactionsRepository.saveAll(transactions);
-                return new FileUploadResponse("Uploaded succesfully", transactions.size(), duplicates);
+                eventPublisher.publishEvent(new ImportCompletedEvent(userId));
+
+                return new FileUploadResponse("Uploaded successfully", transactions.size(), duplicates);
             }
         } catch (CsvValidationException e) {
             throw new IllegalArgumentException("Invalid CSV format: " + e.getMessage());
