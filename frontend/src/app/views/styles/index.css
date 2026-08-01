@@ -1,53 +1,70 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import "@fontsource-variable/outfit";
+@import "@fontsource-variable/playfair-display";
+@import "@fontsource-variable/jetbrains-mono";
+@import "@fontsource-variable/inter";
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/inter";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+  --background: #fafbfa;
   --color-background: #0a0e14;
   --card-background: #141920;
 
   --text-primary-white: #e4e8f0;
-  --text-green-200: #34D399;
+
+  --text-green-200: #34d399;
   --text-gray-400: #4d5a70;
   --label-gray-300: #8894a8;
+
+  --text-red-500: #f87171;
+  --text-blue-light: #60a5fa;
+  --text-black: #0a0e14;
 
   --input-bg-black: #111820;
   --input-outline: #1e2738;
 
   --btn-bg-green: #34d399;
+  --btn-dark-color: #16211c;
 
-  --text-black: #0a0e14;
+  --navigation-border: #e0e5e2;
 
   --font-outfit: "Outfit", sans-serif;
   --font-playfair: "Playfair Display", serif;
   --font-brains: "JetBrains Mono", monospace;
+  --font-poppins: "Poppins", sans-serif;
 
-  --side-bar-bg: #0C1018;
+  --side-bar-bg: #0c1018;
 
-  --bg-primary-dashboard: #0A0E14;
+  --bg-primary-dashboard: #0a0e14;
 
   --sidebar-outline: #172030;
-  --content-outline: #1E2738;
-  --green-outline: #174E3F;
+  --content-outline: #1e2738;
+  --green-outline: #174e3f;
 
-  --success-color: #34D399;
-  --medium-issue: #FBBF24;
+  --success-color: #34d399;
+  --medium-issue: #fbbf24;
 
+  --opaque-red: rgba(248, 113, 113, 0.1);
+  --outline-red: rgba(248, 113, 113, 0.2);
 
-  --primary-amber-clr: #FBBF24;
-  --border-amber-clr: rgba(251, 191, 36, .2);
+  --opaque-green-insight-card-bg: #0d1b1d;
+  --green-outline-card: rgba(52, 211, 153, 0.25);
+  --neon-green: rgb(52, 211, 153);
+  --primary-amber-clr: #fbbf24;
+  --border-amber-clr: rgba(251, 191, 36, 0.2);
 
+  /* --- Hero page: shared across both themes --- */
+  --gradient-cta: linear-gradient(180deg, #17a97b, #0e8c62);
+  --color-anomaly-red: #e07856;
 }
 
 @theme inline {
   --font-heading: var(--font-sans);
-  --font-sans: 'Inter Variable', sans-serif;
+  --font-sans: "Inter Variable", sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -86,11 +103,40 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* --- Hero page: expose as Tailwind utilities (bg-hero-*, text-hero-*, border-hero-*) --- */
+  --color-hero-page-bg: var(--hero-page-bg);
+  --color-hero-nav-bg: var(--hero-nav-bg);
+  --color-hero-card-bg: var(--hero-card-bg);
+  --color-hero-card-border: var(--hero-card-border);
+  --color-hero-control-border: var(--hero-control-border);
+  --color-hero-border-faint: var(--hero-border-faint);
+
+  --color-hero-text-primary: var(--hero-text-primary);
+  --color-hero-text-muted: var(--hero-text-muted);
+  --color-hero-text-faint: var(--hero-text-faint);
+  --color-hero-text-nav-locked: var(--hero-text-nav-locked);
+  --color-hero-text-bullet: var(--hero-text-bullet);
+
+  --color-hero-accent: var(--hero-accent);
+  --color-hero-accent-soft-bg: var(--hero-accent-soft-bg);
+  --color-hero-text-on-accent: var(--hero-text-on-accent);
+
+  --color-hero-btn-dark-bg: var(--hero-btn-dark-bg);
+  --color-hero-btn-dark-text: var(--hero-btn-dark-text);
+
+  --color-hero-chart-highlight: var(--hero-chart-highlight);
+  --color-hero-chart-secondary: var(--hero-chart-secondary);
+  --color-hero-chart-neutral: var(--hero-chart-neutral);
+
+  --color-hero-button-accent-bg: var(--hero-button-accent-bg);
 }
 
 :root {
-  --background: #0a0e14;
-  --foreground: #e4e8f0;
+  --background: #fafbfa;
+  --foreground: #0a0e14;
+  --navigation-border: #2a302e;
+
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -121,11 +167,40 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* --- Hero page: light mode --- */
+  --hero-page-bg: #fafbfa;
+  --hero-nav-bg: rgba(250, 251, 250, 0.85);
+  --hero-card-bg: #ffffff;
+  --hero-card-border: #e4e8e6;
+  --hero-control-border: #e0e5e2;
+  --hero-border-faint: #eef1ef;
+
+  --hero-text-primary: #16211c;
+  --hero-text-muted: #5a6660;
+  --hero-text-faint: #8a948e;
+  --hero-text-nav-locked: #a9b2ac;
+  --hero-text-bullet: #3c4741;
+
+  --hero-accent: #0e8c62;
+  --hero-accent-soft-bg: #edf4f0;
+  --hero-text-on-accent: #ffffff;
+
+  --hero-btn-dark-bg: #16211c;
+  --hero-btn-dark-text: #ffffff;
+
+  --hero-chart-highlight: #0e8c62;
+  --hero-chart-secondary: rgba(14, 140, 98, 0.45);
+  --hero-chart-neutral: #e8ecea;
+
+  --hero-button-accent-bg: linear-gradient(180deg, #17a97b, #0e8c62);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
+  --background: #0a0e14;
+  --foreground: #e4e8f0;
+  --navigation-border: #2a302e;
+
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
@@ -155,6 +230,33 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* --- Hero page: dark mode --- */
+  --hero-page-bg: #101312;
+  --hero-nav-bg: rgba(16, 19, 18, 0.85);
+  --hero-card-bg: #171b1a;
+  --hero-card-border: #262c2a;
+  --hero-control-border: #2a302e;
+  --hero-border-faint: #222826;
+
+  --hero-text-primary: #ecf1ee;
+  --hero-text-muted: #9aa49e;
+  --hero-text-faint: #6e7873;
+  --hero-text-nav-locked: #4e5854;
+  --hero-text-bullet: #c3ccc7;
+
+  --hero-accent: #2ee6a0;
+  --hero-accent-soft-bg: #1c2822;
+  --hero-text-on-accent: #0a1410;
+
+  --hero-btn-dark-bg: #ecf1ee;
+  --hero-btn-dark-text: #101312;
+
+  --hero-chart-highlight: #2ee6a0;
+  --hero-chart-secondary: rgba(46, 230, 160, 0.4);
+  --hero-chart-neutral: #242a28;
+
+  --hero-button-accent-bg: linear-gradient(180deg, #17a97b, #0e8c62);
 }
 
 @layer base {
