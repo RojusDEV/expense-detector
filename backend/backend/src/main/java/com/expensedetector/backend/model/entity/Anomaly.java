@@ -1,41 +1,103 @@
 package com.expensedetector.backend.model.entity;
 
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.springframework.data.domain.Persistable;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(name="anomalies")
-@Data
-public class Anomaly {
+@Table(name = "anomalies")
+@Getter
+@Setter
+@NoArgsConstructor
+public class Anomaly implements Persistable<UUID> {
+
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
         private UUID id;
+
         @NotNull
         @Column(name = "user_id")
         private UUID userId;
+
         @NotNull
         @Enumerated(EnumType.STRING)
+        @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+        @Column(name = "anomaly_type", columnDefinition = "anomaly_type")
         private AnomalyType anomaly_type;
 
         @Column(name = "category_id")
         private int categoryId;
-        @Column(name = "transaction_id")
-        private UUID transactionId;
-        private Date month;
+
+        private LocalDate month;
 
         private BigDecimal zscore;
+
         @Column(name = "expected_amount")
         private BigDecimal expectedAmount;
+
         @Column(name = "actual_amount")
         private BigDecimal actualAmount;
+
         private String explanation;
+
         @NotNull
         @Column(name = "is_dismissed")
         private boolean isDismissed = false;
+
+        @NotNull
+        @Enumerated(EnumType.STRING)
+        @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+        @Column(name = "anomaly_class", columnDefinition = "anomaly_class")
+        private AnomalyClass anomaly_class;
+
+        @Transient
+        private boolean isNew = true;
+
+        public Anomaly(UUID id,
+                                 UUID userId,
+                                 AnomalyType anomaly_type,
+                                 int categoryId,
+                                 LocalDate month,
+                                 BigDecimal zscore,
+                                 BigDecimal expectedAmount,
+                                 BigDecimal actualAmount,
+                                 String explanation,
+                                 boolean isDismissed, AnomalyClass anomaly_class) {
+                this.id = id;
+                this.userId = userId;
+                this.anomaly_type = anomaly_type;
+                this.categoryId = categoryId;
+                this.month = month;
+                this.zscore = zscore;
+                this.expectedAmount = expectedAmount;
+                this.actualAmount = actualAmount;
+                this.explanation = explanation;
+                this.isDismissed = isDismissed;
+                this.anomaly_class = anomaly_class;
+        }
+
+        @Override
+        public UUID getId() {
+                return id;
+        }
+
+        @Override
+        public boolean isNew() {
+                return isNew;
+        }
+
+        @PostPersist
+        @PostLoad
+        void markNotNew() {
+                this.isNew = false;
+        }
 }
