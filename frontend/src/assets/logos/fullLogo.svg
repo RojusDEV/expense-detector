@@ -1,0 +1,14 @@
+<svg width="260" height="60" viewBox="0 0 260 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="iconGradient" x1="0" y1="5" x2="0" y2="55" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1AA77A"/>
+      <stop offset="100%" stop-color="#0D8159"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="5" width="50" height="50" rx="14" fill="url(#iconGradient)"/>
+
+  <text x="25" y="40" font-family="system-ui, -apple-system, Arial, sans-serif" font-weight="900" font-size="30" fill="white" text-anchor="middle">D</text>
+
+  <text x="64" y="41" font-family="system-ui, -apple-system, Arial, sans-serif" font-weight="800" font-size="34" fill="#181F1C" letter-spacing="-0.5">Driftlytics</text>
+</svg>
