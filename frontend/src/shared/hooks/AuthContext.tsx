@@ -1,8 +1,15 @@
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { myAuthApi } from "../api/AuthApi";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+import { myApi } from "../api/AuthApi";
+import { useUserStore } from "../store/userStore";
 
 type User = {
-  id: number;
+  id: string;
   name: string;
   email: string;
   role: string;
@@ -18,14 +25,27 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const user = useUserStore((state) => state.user);
+  const setUser = useUserStore((state) => state.setUser);
+  const clearUser = useUserStore((state) => state.clearUser);
   useEffect(() => {
-    myAuthApi.get("/me")
-      .then((res) => setUser(res.data))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
+    const fetchMe = async () => {
+      try {
+        const response = await myApi.get("/auth/me");
+        setUser(response.data);
+      } catch (err) {
+        clearUser();
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMe();
+    const handleForceLogout = () => clearUser();
+    window.addEventListener("auth:logout", handleForceLogout);
+    return () => window.removeEventListener("auth:logout", handleForceLogout);
   }, []);
 
   const login = useCallback((userData: User) => {
@@ -33,8 +53,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const logout = useCallback(async () => {
-    await myAuthApi.post("/signout");
-    setUser(null);
+    await myApi.post("/auth/signout");
+    clearUser();
   }, []);
 
   return (
