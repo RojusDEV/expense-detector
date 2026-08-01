@@ -12,7 +12,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
+    properties:
+      hibernate.hibernate.generate_statistics: true
+
   flyway:
     enabled: true
 
@@ -21,9 +25,17 @@ server:
 
 app:
   jwtSecret: ${JWTSecret}
-  jwtExpirationMs: 864000000
+  jwtExpirationMs: 600000
   jwtCookieName: expense
+  refreshExpirationMs: 86400000
 
 logging:
   level:
-    org.hibernate.tool.schema: DEBUG
+    org:
+      hibernate:
+        tool:
+          schema: DEBUG
+        SQL: DEBUG
+        stat: DEBUG
+
+
