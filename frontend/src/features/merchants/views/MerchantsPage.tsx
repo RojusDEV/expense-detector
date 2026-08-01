@@ -1,16 +1,25 @@
-import { capitalize, colors } from "@/lib/utils";
+import { capitalize, colors } from "@/shared/utils/utils";
 import { getMerchantList } from "@/shared/api/merchantApi";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 const MerchantsPage = () => {
   const {
     isLoading,
     isError,
+    error,
     data: merchants,
   } = useQuery({
     queryKey: ["merchants"],
     queryFn: getMerchantList,
   });
+
+  if (isLoading) {
+    return <span>Loading...</span>;
+  }
+
+  if (isError) {
+    return <span>{error.message}</span>;
+  }
 
   return (
     <div>
@@ -25,7 +34,10 @@ const MerchantsPage = () => {
           <ul className="rounded-lg border border-(--content-outline) bg-(--card-background) p-5">
             {merchants &&
               merchants.map((merchant) => (
-                <li className="mb-8" key={merchant.id}>
+                <li
+                  className="mb-8"
+                  key={`${merchant.id}_${merchant.merchantName}`}
+                >
                   <div className="font-outfit">
                     <span className="text-md font-semibold">
                       {capitalize(merchant.merchantName)}{" "}
@@ -39,7 +51,7 @@ const MerchantsPage = () => {
                   <div className="mt-2 flex flex-wrap gap-1">
                     {merchant.merchantAliases != undefined &&
                       merchant.merchantAliases.slice(0, 5).map((alias) => (
-                        <div className="font-brains rounded-sm border border-(--content-outline) bg-(--input-bg-black) px-2 py-1 text-sm">
+                        <div className="font-brains rounded-sm border border-(--content-outline) bg-(--input-bg-black) px-2 py-1 text-sm" key={`${merchant.id}_${alias}`}>
                           <span className="text-(--label-gray-300)">
                             {alias}
                           </span>

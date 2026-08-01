@@ -1,4 +1,4 @@
-import { capitalize, formatDate } from "@/lib/utils";
+import { capitalize, formatDate } from "@/shared/utils/utils";
 import { getSubscriptionsRequest } from "@/shared/api/subsriptionsApi";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
@@ -61,7 +61,10 @@ const SubscriptonsPage = () => {
       <ul className="mt-5 grid gap-4 rounded-md border border-(--input-outline) bg-(--card-background) p-5">
         {subscriptions &&
           subscriptions.map((sub) => (
-            <li className="font-outfit flex justify-between border-b border-(--sidebar-outline) pb-4">
+            <li
+              className="font-outfit flex justify-between border-b border-(--sidebar-outline) pb-4"
+              key={`${sub.id}_${sub.name}`}
+            >
               <div className="flex flex-col">
                 <span className="text-sm font-medium">
                   {capitalize(sub.merchantName)}

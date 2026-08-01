@@ -5,7 +5,6 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import org.jspecify.annotations.Nullable;
 
 import java.sql.Timestamp;
 import java.time.Instant;

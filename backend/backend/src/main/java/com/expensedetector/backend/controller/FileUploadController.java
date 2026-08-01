@@ -1,10 +1,12 @@
 package com.expensedetector.backend.controller;
 
 import com.expensedetector.backend.payload.response.FileUploadResponse;
+import com.expensedetector.backend.service.AnomalyService;
 import com.expensedetector.backend.service.SubscriptionService;
 import com.expensedetector.backend.service.importer.ImportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,13 +22,12 @@ import java.util.UUID;
 public class FileUploadController {
 
     private final ImportService fileService;
-    private final SubscriptionService subscriptionService;
     @Autowired
-    public FileUploadController(ImportService fileService, SubscriptionService subscriptionService) {
-        this.subscriptionService = subscriptionService;
+    public FileUploadController(ImportService fileService, SubscriptionService subscriptionService, AnomalyService anomalyService) {
         this.fileService = fileService;
     }
     @PostMapping("/csv")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<FileUploadResponse> uploadFile(
             @RequestParam("file") MultipartFile file,
             Authentication authentication
@@ -42,8 +43,6 @@ public class FileUploadController {
         }
 
         FileUploadResponse fileUploadResponse = fileService.importFromCsv(file, userId);
-        subscriptionService.findSubscriptionsAsync(userId);
-
         return ResponseEntity.ok(fileUploadResponse);
     }
 }

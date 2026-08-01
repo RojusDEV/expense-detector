@@ -2,11 +2,7 @@ package com.expensedetector.backend.controller;
 
 
 import com.expensedetector.backend.model.DTO.MerchantDTO;
-import com.expensedetector.backend.model.entity.Category;
-import com.expensedetector.backend.model.entity.MerchantAlias;
-import com.expensedetector.backend.repository.CategoryRepository;
-import com.expensedetector.backend.repository.MerchantAliasRepository;
-import com.expensedetector.backend.repository.MerchantRepository;
+import com.expensedetector.backend.service.MerchantService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,40 +15,14 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/merchants")
 public class MerchantController {
-    private final MerchantRepository merchantRepository;
-    private final CategoryRepository categoryRepository;
-    private final MerchantAliasRepository merchantAliasRepository;
-
-    public MerchantController(MerchantRepository merchantRepository,
-                              CategoryRepository categoryRepository,
-                              MerchantAliasRepository merchantAliasRepository) {
-        this.merchantRepository = merchantRepository;
-        this.categoryRepository = categoryRepository;
-        this.merchantAliasRepository = merchantAliasRepository;
+    private final MerchantService merchantService;
+    public MerchantController(MerchantService merchantService) {
+        this.merchantService = merchantService;
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<MerchantDTO>> getMerchants(Authentication authentication) {
-        UUID user_id = UUID.fromString(authentication.getName());
-        List<MerchantDTO> merchantDtos = merchantRepository.findByUserId(user_id).orElse(List.of())
-                .stream()
-                .map(m -> MerchantDTO.builder()
-                        .id(m.getId())
-                        .merchantName(m.getName())
-                        .categoryName(
-                                m.getCategoryId() != null
-                                        ? categoryRepository.findById(m.getCategoryId())
-                                        .map(Category::getName)
-                                        .orElse("Uncategorized")
-                                        : "Uncategorized"
-                        )
-                        .merchantAliases(merchantAliasRepository.findByMerchantId(m.getId())
-                                .stream()
-                                .map(MerchantAlias::getRawName)
-                                .toList())
-                        .build())
-                .toList();
-
-        return ResponseEntity.ok().body(merchantDtos);
+        UUID userId = UUID.fromString(authentication.getName());
+        return ResponseEntity.ok(merchantService.getMerchantsForUser(userId));
     }
 }

@@ -31,7 +31,6 @@ public class UserDetailsImpl implements UserDetails {
     }
 
     public static UserDetailsImpl build(Users user) {
-        // single role → single GrantedAuthority
         List<GrantedAuthority> authorities = List.of(
                 new SimpleGrantedAuthority(user.getRole().getName().name())
         );

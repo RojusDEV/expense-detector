@@ -9,7 +9,6 @@ import java.util.List;
 @Data
 public class TransactionsResponse {
     List<TransactionDTO> transactions;
-
     public TransactionsResponse(List<TransactionDTO> transactions) {
         this.transactions = transactions;
     }

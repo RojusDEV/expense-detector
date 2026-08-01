@@ -2,19 +2,21 @@ import { useRef, useMemo, useCallback } from "react";
 import { format } from "date-fns";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getTransactionsRequest } from "@/shared/api/transactionsApi";
-import { capitalize, colors } from "@/lib/utils";
+import { capitalize, colors } from "@/shared/utils/utils";
 import TransactionsFilters from "../components/TransactionsFilters";
+import { useFilterStore } from "@/shared/store/filterStore";
+import TransactionsSkeleton from "../components/TransactionsSkeleton";
 
 export const TransactionsPage = () => {
   const {
     data,
-    error,
     isLoading,
     fetchNextPage,
     hasNextPage,
     isFetching,
-    isFetchingNextPage,
+    error,
     status,
+    isFetchingNextPage,
   } = useInfiniteQuery({
     queryKey: ["transactions"],
     queryFn: ({ pageParam }) => getTransactionsRequest({ offset: pageParam }),
@@ -23,17 +25,37 @@ export const TransactionsPage = () => {
     staleTime: 1000 * 60 * 5,
   });
 
+  const filters = useFilterStore((state) => state.filters);
+
   const flattenedData = useMemo(
     () => (data ? data.pages.flatMap((page) => page.data) : []),
     [data],
   );
 
-  const categorySet = useMemo(
-    () => new Set(flattenedData.map((t) => t.categoryName)),
-    [flattenedData],
-  );
+  const filteredData = useMemo(() => {
+    return flattenedData.filter((t) => {
+      const txDate = new Date(t.transactionDate);
+
+      if (filters.fromDate && txDate < filters.fromDate) return false;
+      if (filters.toDate && txDate > filters.toDate) return false;
+      if (filters.minAmount !== null && t.amount < filters.minAmount)
+        return false;
+      if (filters.maxAmount !== null && t.amount > filters.maxAmount)
+        return false;
+      if (
+        filters.search &&
+        !t.merchantName?.toLowerCase().includes(filters.search.toLowerCase()) &&
+        !t.rawDescription?.toLowerCase().includes(filters.search.toLowerCase())
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [flattenedData, filters]);
 
   const observer = useRef<IntersectionObserver | undefined>(undefined);
+
   const lastElementRef = useCallback(
     (node: HTMLTableRowElement | null) => {
       if (isLoading) return;
@@ -48,10 +70,10 @@ export const TransactionsPage = () => {
     [isLoading, hasNextPage, isFetching, fetchNextPage],
   );
 
+  // // TODO: add skeletons
   if (status === "error")
     return <span className="font-bold text-red-500">{error.message}</span>;
-  if (status === "pending")
-    return <span className="font-bold text-yellow-300">Loading...</span>;
+  if (status === "pending") return <TransactionsSkeleton />;
 
   return (
     <div className="w-full bg-(--bg-primary-dashboard) px-8 py-7">
@@ -74,7 +96,7 @@ export const TransactionsPage = () => {
             </tr>
           </thead>
           <tbody>
-            {flattenedData.map((transaction, index) => {
+            {filteredData.map((transaction, index) => {
               const isLast = index === flattenedData.length - 1;
               const {
                 id,
@@ -119,11 +141,7 @@ export const TransactionsPage = () => {
             })}
           </tbody>
         </table>
-        {isFetchingNextPage && (
-          <p className="mt-3 text-center text-sm text-(--text-gray-400)">
-            Kraunama...
-          </p>
-        )}
+        {isFetchingNextPage && <span>Kraunama....</span>}
       </div>
     </div>
   );

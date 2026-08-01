@@ -1,10 +1,15 @@
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "@/shared/components/ui/calendar";
+import { useFilterStore } from "@/shared/store/filterStore";
 import { format } from "date-fns";
 import { useEffect, useRef, useState } from "react";
 
 const TransactionsFilters = () => {
-  const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
-  const [toDate, setToDate] = useState<Date | undefined>(undefined);
+  // const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
+  // const [toDate, setToDate] = useState<Date | undefined>(undefined);
+
+  const filters = useFilterStore((state) => state.filters);
+  const setFilter = useFilterStore((state) => state.setFilter);
+
   const [showFrom, setShowFrom] = useState(false);
   const [showTo, setShowTo] = useState(false);
 
@@ -32,15 +37,18 @@ const TransactionsFilters = () => {
           }}
           className="rounded-md bg-(--input-bg-black) px-3 py-2 text-[0.75rem] font-medium text-(--text-primary-white) outline-1 outline-(--content-outline)"
         >
-          {fromDate ? format(fromDate, "yyyy-MM-dd") : "Nuo datos"}
+          {filters?.fromDate
+            ? format(filters?.fromDate, "yyyy-MM-dd")
+            : "Nuo datos"}
         </button>
         {showFrom && (
           <div className="absolute top-full left-0 z-50 mt-1">
             <Calendar
               mode="single"
-              selected={fromDate}
+              selected={filters?.fromDate}
               onSelect={(d) => {
-                setFromDate(d);
+                // setFromDate(d);
+                setFilter("fromDate", d);
                 setShowFrom(false);
               }}
               className="rounded-lg border"
@@ -56,15 +64,18 @@ const TransactionsFilters = () => {
           }}
           className="rounded-md bg-(--input-bg-black) px-3 py-2 text-[0.75rem] font-medium text-(--text-primary-white) outline-1 outline-(--content-outline)"
         >
-          {toDate ? format(toDate, "yyyy-MM-dd") : "Iki datos"}
+          {filters?.toDate
+            ? format(filters?.toDate, "yyyy-MM-dd")
+            : "Iki datos"}
         </button>
         {showTo && (
           <div className="absolute top-full left-0 z-50 mt-1">
             <Calendar
               mode="single"
-              selected={toDate}
+              selected={filters?.toDate}
               onSelect={(d) => {
-                setToDate(d);
+                // setToDate(d);
+                setFilter("toDate", d);
                 setShowTo(false);
               }}
               className="rounded-lg border"
@@ -81,17 +92,20 @@ const TransactionsFilters = () => {
         type="text"
         placeholder="🔍 Ieškoti prekybininko..."
         className="w-full rounded-md bg-(--input-bg-black) px-3 py-2 text-[0.75rem] font-medium text-(--text-primary-white) outline-1 outline-(--content-outline)"
+        onChange={(e) => setFilter("search", e.target.value)}
       />
 
       <input
-        type="text"
+        type="number"
         placeholder="Min €"
         className="w-20 shrink-0 rounded-md bg-(--input-bg-black) px-3 py-2 text-[0.75rem] font-medium text-(--text-primary-white) outline-1 outline-(--content-outline)"
+        onChange={(e) => setFilter("minAmount", Number(e.target.value))}
       />
       <input
-        type="text"
+        type="number"
         placeholder="Max €"
         className="w-20 shrink-0 rounded-md bg-(--input-bg-black) px-3 py-2 text-[0.75rem] font-medium text-(--text-primary-white) outline-1 outline-(--content-outline)"
+        onChange={(e) => setFilter("maxAmount", Number(e.target.value))}
       />
     </div>
   );

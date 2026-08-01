@@ -1,0 +1,1 @@
+INSERT INTO category (id, name) VALUES (0, 'nežinomos išlaidos')

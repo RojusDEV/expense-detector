@@ -37,7 +37,7 @@ public class SubscriptionController {
                         .from_date(s.getFrom_date())
                         .name(s.getName())
                         .amount(s.getAmount())
-                        .merchantName(merchantRepository.findById(s.getMerchant_id())
+                        .merchantName(merchantRepository.findById(s.getMerchantId())
                                 .map(Merchant::getName)
                                 .orElse(null))
                         .frequency_days(s.getFrequency_days())

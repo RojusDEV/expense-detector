@@ -7,6 +7,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +40,18 @@ public class JwtUtils {
         String jwt = generateTokenFromUserId(userPrincipal.getId().toString());
         return ResponseCookie.from(jwtCookieName, jwt)
                 .path("/api")
-                .maxAge(24 * 60 * 60)
+                .maxAge(600)
                 .httpOnly(true)
+                .build();
+    }
+
+    public ResponseCookie getCleanRefreshCookie() {
+        return ResponseCookie.from(jwtRefreshCookie, "")
+                .path("/api/auth/refresh")
+                .maxAge(0)
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Strict")
                 .build();
     }
 
@@ -56,6 +67,24 @@ public class JwtUtils {
             return cookie.getValue();
         }
         return null;
+    }
+
+    @Value("${expensedetector.app.jwtRefreshCookieName:refreshToken}")
+    private String jwtRefreshCookie;
+
+    public ResponseCookie generateRefreshCookie(String refreshToken) {
+        return ResponseCookie.from(jwtRefreshCookie, refreshToken)
+                .path("/api/auth/refresh")
+                .maxAge(7 * 24 * 60 * 60)
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Strict")
+                .build();
+    }
+
+    public String getRefreshTokenFromCookies(HttpServletRequest request) {
+        Cookie cookie = WebUtils.getCookie(request, jwtRefreshCookie);
+        return cookie != null ? cookie.getValue() : null;
     }
 
 

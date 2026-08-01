@@ -8,14 +8,8 @@ import com.expensedetector.backend.service.importer.BankNormalizer;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.text.Normalizer;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,7 +28,7 @@ public class SwedbankNormalizer implements BankNormalizer {
         t.setTransactionDate(transactionDate);
         t.setMerchantId(merchant.getId());
         t.setUserId(user.getId());
-        t.setCategoryId(category.map(Category::getId).orElse(null));
+        t.setCategoryId(category.map(Category::getId).orElse(0));
         t.setRawDescription(row[4]);
         t.setRawRecipient(row[3]);
         t.setAmount(new BigDecimal(row[5].replace(',', '.')));

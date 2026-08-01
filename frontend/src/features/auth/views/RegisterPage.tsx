@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import { registerApi } from "../../../shared/api/AuthApi";
+import SubmitButton from "./components/SubmitButton";
 
 type Inputs = {
   name: string;
@@ -149,14 +150,9 @@ const RegisterPage = () => {
             {apiError && (
               <span className="mt-3 text-xs text-red-400">{apiError}</span>
             )}
-
-            <button
-              className="mt-6.5 rounded-md bg-(--btn-bg-green) py-2.5 font-semibold text-(--text-black) disabled:opacity-50"
-              type="submit"
-              disabled={isSubmitting}
-            >
+            <SubmitButton isSubmitting={isSubmitting}>
               {isSubmitting ? "Registruojama..." : "Registruotis"}
-            </button>
+            </SubmitButton>
           </form>
           <span className="mt-5 text-center text-[13px] text-(--text-gray-400)">
             Jau turite paskyrą?{" "}

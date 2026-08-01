@@ -3,7 +3,6 @@ package com.expensedetector.backend.security.jwt;
 import com.expensedetector.backend.model.entity.Users;
 import com.expensedetector.backend.repository.UserRepository;
 import com.expensedetector.backend.security.service.UserDetailsImpl;
-import com.expensedetector.backend.security.service.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

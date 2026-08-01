@@ -32,7 +32,8 @@
         private String name;
         @NotNull
         private BigDecimal amount;
-        private UUID merchant_id;
+        @Column(name = "merchant_id")
+        private UUID merchantId;
         @NotNull
         private int frequency_days;
 

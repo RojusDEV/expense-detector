@@ -25,7 +25,7 @@ export const colors: Record<string, string> = {
   maistas: "bg-orange-500/20 text-orange-400",
   būstas: "bg-purple-500/20 text-purple-400",
   transportas: "bg-blue-500/20 text-blue-400",
-  pervedimai: "bg-gray-500/20 text-gray-400",
+  pervedimai: "bg-purple-500/20 text-purple-400",
   pramogos: "bg-pink-500/20 text-pink-400",
   sveikata: "bg-red-500/20 text-red-400",
   investavimas: "bg-green-500/20 text-green-400",

@@ -9,6 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface MerchantAliasRepository extends JpaRepository<MerchantAlias, UUID> {
-    List<MerchantAlias> findByMerchantId(UUID merchantId);
+    List<MerchantAlias> findByMerchantIdIn(List<UUID> merchantIds);
     boolean existsByMerchantIdAndRawName(UUID merchantId, String rawName);
 }

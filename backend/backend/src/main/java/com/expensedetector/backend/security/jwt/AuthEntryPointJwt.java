@@ -11,7 +11,6 @@ import org.springframework.security.core.AuthenticationException;
 
 import java.io.IOException;
 
-
 @Component
 public class AuthEntryPointJwt implements AuthenticationEntryPoint {
     private static final Logger logger = LoggerFactory.getLogger(AuthEntryPointJwt.class);

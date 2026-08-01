@@ -1,11 +1,10 @@
 package com.expensedetector.backend.controller;
 
-import com.expensedetector.backend.model.DTO.TransactionDTO;
-import com.expensedetector.backend.model.entity.Transaction;
-import com.expensedetector.backend.payload.response.TransactionsResponse;
-import com.expensedetector.backend.repository.TransactionsRepository;
+import com.expensedetector.backend.model.DTO.*;
+import com.expensedetector.backend.model.entity.CategorySummaryDTO;
+import com.expensedetector.backend.payload.response.*;
+import com.expensedetector.backend.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,42 +13,62 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/transactions")
 public class TransactionController {
 
-    private final TransactionsRepository transactionsRepository;
-
+    private final TransactionService transactionService;
     @Autowired
-    public TransactionController(TransactionsRepository transactionsRepository) {
-        this.transactionsRepository = transactionsRepository;
+    public TransactionController(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     @GetMapping
-    public ResponseEntity<TransactionsResponse> getTransactions(@RequestParam(required = false) Integer pageParam, Authentication authentication) {
+    public ResponseEntity<TransactionsResponse> getTransactions(@RequestParam(required = false) Optional<Integer> pageParam, Authentication authentication) {
         UUID userId = UUID.fromString(authentication.getName());
-        List<Transaction> transactions = pageParam != null
-                ? transactionsRepository.findByUserId(userId, PageRequest.of(pageParam, 10))
-                : transactionsRepository.findByUserId(userId);
-
-        List<TransactionDTO> dtos = transactions.stream()
-                .map(this::toDto)
-                .toList();
-
+        List<TransactionDTO> dtos = transactionService.getTransactions(userId, pageParam);
         return ResponseEntity.ok(new TransactionsResponse(dtos));
     }
 
-    private TransactionDTO toDto(Transaction t) {
-        return TransactionDTO.builder()
-                .id(t.getId())
-                .isExpense(t.isExpense())
-                .amount(t.getAmount())
-                .transactionDate(t.getTransactionDate())
-                .rawDescription(t.getRawDescription())
-                .categoryName(t.getCategory() != null ? t.getCategory().getName() : null)
-                .merchantName(t.getMerchant() != null ? t.getMerchant().getName() : null)
-                .build();
+//    @GetMapping("/latest-import-data")
+//    public ResponseEntity<LatestImportData> getLatestImportData(Authentication authentication) {
+//        UUID userId = UUID.fromString(authentication.getName());
+//        LatestImportData importData = transactionService.get
+//        List<CategorySummaryDTO> monthlySummary = transactionService.getCategorySummary(userId);
+//        return ResponseEntity.ok();
+//    }
+
+
+
+    @GetMapping("/summary")
+    public ResponseEntity<TransactionSummaryResponse> getCategorySummary(Authentication authentication) {
+        UUID userId = UUID.fromString(authentication.getName());
+        List<CategorySummaryDTO> monthlySummary = transactionService.getCategorySummary(userId);
+        return ResponseEntity.ok(new TransactionSummaryResponse(monthlySummary));
+    }
+
+    @GetMapping("/latest")
+    public ResponseEntity<LatestTransactionsDtoResponse> getLatestTransactions(Authentication authentication, @RequestParam(required = false) Optional<Integer> size) {
+        UUID userId = UUID.fromString(authentication.getName());
+        List<LatestTransactionsDto> latestTransactions = transactionService.getLatestTransactions(userId, size);
+        return ResponseEntity.ok(new LatestTransactionsDtoResponse(latestTransactions));
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<BalanceStatsResponse> getBalanceStats(Authentication authentication) {
+        UUID userId = UUID.fromString(authentication.getName());
+        BalanceStatsDTO balanceStats = transactionService.getBalanceStats(userId);
+        return ResponseEntity.ok(new BalanceStatsResponse(balanceStats));
+    }
+
+
+    @GetMapping("/trends")
+    public ResponseEntity<MonthlyTrendsResponse> getMonthlyTrends(Authentication authentication) {
+        UUID userId = UUID.fromString(authentication.getName());
+        List<MonthlyTrendDTO> monthlyTrendDTO = transactionService.getMonthlyTrends(userId);
+        return ResponseEntity.ok(new MonthlyTrendsResponse(monthlyTrendDTO));
     }
 }
