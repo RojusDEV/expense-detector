@@ -1,6 +1,13 @@
 import importIcon from "@/assets/icons/import.svg";
+import Modal, {
+  ModalHeading,
+  ModalParagraph,
+  type ModalHandle,
+} from "@/shared/components/Modal";
 import { useUploadCsv } from "@/shared/hooks/useUploadCsv";
+import { useUserStore } from "@/shared/store/userStore";
 import { useRef, useState, type DragEvent } from "react";
+import { useNavigate } from "react-router";
 
 const MAX_SIZE = 10 * 1024 * 1024;
 
@@ -11,21 +18,29 @@ const ImportPage = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const dragCounter = useRef(0);
 
+  const user = useUserStore((state) => state.user);
   const { mutate, isSuccess, isError, data } = useUploadCsv(setUploadProgress);
 
+  const isDemo = user?.role === "DEMO";
+
+  const navigate = useNavigate();
   const handleUpload = () => {
     if (!file) return;
+    if (isDemo) {
+      modalRef.current?.open();
+      return;
+    }
     setUploadProgress(0);
     mutate(file, {
       onSuccess: (result) => {
         console.log(result);
       },
-      onError: () => {
-        setError("Nežinoma klaida.");
+      onError: (error) => {
+        setError(error.message);
       },
     });
   };
-
+  
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     dragCounter.current = 0;
@@ -74,9 +89,24 @@ const ImportPage = () => {
     setError(null);
     setFile(selected);
   };
+  const modalRef = useRef<ModalHandle>(null);
 
   return (
     <div className="w-full bg-(--bg-primary-dashboard) px-8 py-7">
+      <Modal ref={modalRef}>
+        <div className="max-w-95 w-full text-center ">
+          <ModalHeading>Naudojatės demo versija</ModalHeading>
+          <ModalParagraph>
+            Demonstracinėje paskyroje failų įkelti negalima, jūs matote tik
+            pavyzdinius duomenis. Susikurkite nemokamą paskyrą, kad galėtumėte
+            įkelti savo banko išrašą.
+          </ModalParagraph>
+          <div className="grid gap-4 mt-6">
+            <button className="bg-[#0E8C62] text-white p-3.5 rounded-xl font-semibold cursor-pointer" onClick={() => navigate("/auth/signup")}>Prisiregistruoti nemokamai</button>
+            <button className="text-[#6B7280] cursor-pointer hover:text-[#52565f]" onClick={() => modalRef.current?.close()}>Gal vėliau</button>
+          </div>
+        </div>
+      </Modal>
       <div className="">
         <h1 className="font-playfair text-2xl leading-[120%] font-medium text-(--text-primary-white)">
           Įkelti CSV failą
@@ -86,12 +116,18 @@ const ImportPage = () => {
         </h2>
       </div>
       <div
-        className={`mt-7 flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed py-16 ${isDragging ? "border-(--green-outline)" : "border-(--content-outline)"}`}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-        onClick={() => document.getElementById("csv-input")?.click()}
+        className={`mt-7 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed py-16 ${
+          isDemo ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+        } ${isDragging ? "border-(--green-outline)" : "border-(--content-outline)"}`}
+        onDrop={isDemo ? undefined : handleDrop}
+        onDragOver={isDemo ? undefined : handleDragOver}
+        onDragEnter={isDemo ? undefined : handleDragEnter}
+        onDragLeave={isDemo ? undefined : handleDragLeave}
+        onClick={() =>
+          isDemo
+            ? modalRef.current?.open()
+            : document.getElementById("csv-input")?.click()
+        }
       >
         <input
           id="csv-input"
@@ -147,7 +183,9 @@ const ImportPage = () => {
                 <button
                   className="cursor-pointer rounded-lg border border-[rgba(52,211,153,0.25)] bg-[rgba(52,211,153,0.10)] px-3 py-1.5 text-xs font-semibold text-[#34D399] transition-colors hover:bg-[rgba(52,211,153,0.20)] disabled:cursor-not-allowed disabled:opacity-40"
                   onClick={handleUpload}
-                  disabled={uploadProgress > 0 && !isSuccess && !isError}
+                  disabled={
+                    (uploadProgress > 0 && !isSuccess && !isError) || isDemo
+                  }
                 >
                   {uploadProgress > 0 ? "Keliama..." : "Įkelti"}
                 </button>
