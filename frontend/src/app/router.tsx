@@ -13,6 +13,7 @@ import AnomaliesPage from "../features/anomalies/views/AnomaliesPage";
 import SavingsPage from "../features/savings/views/SavingsPage";
 import InsightsPage from "../features/insights/views/InsightsPage";
 import MerchantsPage from "../features/merchants/views/MerchantsPage";
+import { DemoModeProvider } from "../shared/context/DemoModeContext";
 
 const router = createBrowserRouter([
   {
@@ -34,9 +35,26 @@ const router = createBrowserRouter([
           { path: "savings", Component: SavingsPage },
           { path: "insights", Component: InsightsPage },
           { path: "import", Component: ImportPage },
-          {},
         ],
       },
+    ],
+  },
+  {
+    path: "/dashboard/preview",
+    Component: () => (
+      <DemoModeProvider>
+        <Layout />
+      </DemoModeProvider>
+    ),
+    children: [
+      { index: true, Component: OverviewPage },
+      { path: "transactions", Component: TransactionsPage },
+      { path: "merchants", Component: MerchantsPage },
+      { path: "subscriptions", Component: SubscriptonsPage },
+      { path: "anomalies", Component: AnomaliesPage },
+      { path: "savings", Component: SavingsPage },
+      { path: "insights", Component: InsightsPage },
+      { path: "import", Component: ImportPage },
     ],
   },
   {

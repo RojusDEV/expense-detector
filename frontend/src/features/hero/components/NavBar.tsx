@@ -41,7 +41,10 @@ const NavBar = () => {
           >
             Prisijungti
           </button>
-          <button className="bg-hero-btn-dark-bg text-hero-btn-dark-text cursor-pointer rounded-[9px] px-4.5 py-2.25">
+          <button
+            className="bg-hero-btn-dark-bg text-hero-btn-dark-text cursor-pointer rounded-[9px] px-4.5 py-2.25"
+            onClick={() => navigate("/dashboard")}
+          >
             Pradėti nemokamai
           </button>
         </div>

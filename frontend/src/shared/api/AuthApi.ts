@@ -1,4 +1,9 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
+import { useAuthStore } from "../store/authStore";
+
+interface CustomRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
 
 export const myApi = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
@@ -20,12 +25,10 @@ export const myAuthApi = axios.create({
   },
 });
 
-// Refresh handling
-
 let isRefreshing = false;
 let refreshQueue: Array<() => void> = [];
 
-const onRefreshed = () => {
+const processQueue = (error: any = null) => {
   refreshQueue.forEach((cb) => cb());
   refreshQueue = [];
 };
@@ -33,9 +36,13 @@ const onRefreshed = () => {
 myApi.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config as CustomRequestConfig;
 
-    if (error.response?.status !== 401 || originalRequest._retry) {
+    if (
+      !originalRequest ||
+      error.response?.status !== 401 ||
+      originalRequest._retry
+    ) {
       return Promise.reject(error);
     }
 
@@ -46,27 +53,34 @@ myApi.interceptors.response.use(
     originalRequest._retry = true;
 
     if (isRefreshing) {
-      return new Promise((resolve) => {
-        refreshQueue.push(() => resolve(myApi(originalRequest)));
+      return new Promise((resolve, reject) => {
+        refreshQueue.push(() => {
+          resolve(myApi(originalRequest));
+        });
       });
     }
 
     isRefreshing = true;
 
     try {
-      await myApi.post("/auth/refresh");
+      await myAuthApi.post("/refresh");
+
+      useAuthStore.getState().setAuthenticated(true);
+
       isRefreshing = false;
-      onRefreshed();
+      processQueue();
+
       return myApi(originalRequest);
     } catch (refreshError) {
       isRefreshing = false;
-      refreshQueue = [];
+      processQueue(refreshError);
+
+      useAuthStore.getState().clearAuth();
       window.dispatchEvent(new Event("auth:logout"));
       return Promise.reject(refreshError);
     }
-  }
+  },
 );
-
 
 type RegisterPayload = {
   defaultBank: string;
