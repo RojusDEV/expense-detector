@@ -51,6 +51,8 @@ const LoginPage = () => {
               register={register}
               error={errors.email}
               placeholder="vardenis@gmail.com"
+              autoComplete="email"
+              
             />
             <FormInput<Inputs>
               label="Slaptažodis"
@@ -60,6 +62,7 @@ const LoginPage = () => {
               error={errors.password}
               placeholder="slaptažodis"
               className="mt-4.5"
+              autoComplete="password"
             />
             {apiError && (
               <span className="mt-3 text-xs text-red-400">{apiError}</span>

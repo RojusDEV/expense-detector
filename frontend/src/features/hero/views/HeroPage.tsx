@@ -1,15 +1,19 @@
+import { useNavigate } from "react-router";
 import NavBar from "../components/NavBar";
 import { FaCircleCheck, FaArrowRightLong, FaPlay } from "react-icons/fa6";
 export const HeroPage = () => {
+  const navigate = useNavigate();
   return (
     <div className="bg-hero-page-bg h-screen w-screen">
       <NavBar />
       <main className="">
-        <div className="mx-auto grid max-w-7xl pt-22 grid-cols-2">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 pt-22">
           <div className="">
-            <h1 className="font-poppins max-w-[12ch] text-[50px] font-semibold">
-              Jūsų banko išrašas žino daugiau,{" "}
-              <span className="text-hero-accent">nei jums pasakoja</span>
+            <h1 className="font-poppins max-w-[20ch] text-[50px] font-semibold">
+              Automatiškai aptinka neįprastas išlaidas,{" "}
+              <span className="text-hero-accent">
+                pasikartojančias prenumeratas ir išlaidų įpročius.
+              </span>
             </h1>
             <p className="text-[1.0625rem]] text-hero-text-muted mt-5 max-w-[40ch] leading-[1.65]">
               Driftlytics randa pasikartojančius mokesčius, anomalijas ir tylius
@@ -20,7 +24,7 @@ export const HeroPage = () => {
                 Pradėti nemokamai
                 <FaArrowRightLong />
               </button>
-              <button className="bg-color-hero-card-bg border-hero-control-border flex cursor-pointer items-center gap-2.25 rounded-[0.6875rem] border px-5.5 py-3.5">
+              <button className="bg-color-hero-card-bg border-hero-control-border flex cursor-pointer items-center gap-2.25 rounded-[0.6875rem] border px-5.5 py-3.5" onClick={() => navigate("/dashboard/preview")}>
                 <div className="bg-hero-accent-soft-bg flex h-5 w-5 items-center justify-center rounded-full font-medium">
                   <FaPlay color="#2ee6a0" size={8} />
                 </div>

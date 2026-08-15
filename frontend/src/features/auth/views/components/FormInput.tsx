@@ -15,6 +15,7 @@ type FormInputProps<T extends FieldValues> = {
   placeholder?: string;
   required?: boolean;
   className?: string;
+  autoComplete?: string;
 };
 
 const FormInput = <T extends FieldValues>({
@@ -25,6 +26,7 @@ const FormInput = <T extends FieldValues>({
   error,
   placeholder,
   className = "",
+  autoComplete = "off",
 }: FormInputProps<T>) => {
   return (
     <div className={`grid ${className}`}>
@@ -39,7 +41,7 @@ const FormInput = <T extends FieldValues>({
         id={name}
         className={`rounded-md bg-(--input-bg-black) px-3.5 py-3 text-sm outline-1 ${
           error ? "outline-red-500" : "outline-(--input-outline)"
-        }`}
+        } ${autoComplete}`}
         placeholder={placeholder}
         {...register(name, { required: "Privalomas laukas" })}
       />
