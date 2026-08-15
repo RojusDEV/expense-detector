@@ -16,6 +16,13 @@ spring:
     show-sql: true
     properties:
       hibernate.hibernate.generate_statistics: true
+      hibernate:
+        order_inserts=true:
+        order_updates=true:
+        jdbc:
+          batch_size=50:
+          batch_versioned_data=true:
+
 
   flyway:
     enabled: true

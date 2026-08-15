@@ -17,7 +17,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtUtils {
@@ -106,19 +108,34 @@ public class JwtUtils {
                 .getPayload()
                 .getSubject();
     }
-    public boolean validateJwtToken(String authToken) {
-        try {
-            Jwts.parser().verifyWith(key()).build().parseSignedClaims(authToken);
-            return true;
-        } catch (MalformedJwtException e) {
-            logger.error("Invalid JWT token: {}", e.getMessage());
-        } catch (ExpiredJwtException e) {
-            logger.error("JWT token is expired: {}", e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            logger.error("JWT token is unsupported: {}", e.getMessage());
-        } catch (IllegalArgumentException e) {
-            logger.error("JWT claims string is empty: {}", e.getMessage());
-        }
-        return false;
+
+    public String generateTokenForUser(String username, List<String> roles) {
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + jwtExpirationMs);
+        SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        return Jwts.builder()
+                .subject(username)
+                .claim("roles", roles)
+                .claim("isDemoAccount", true)
+                .issuedAt(now)
+                .expiration(expiry)
+                .signWith(key)
+                .compact();
     }
-}
+
+        public boolean validateJwtToken (String authToken){
+            try {
+                Jwts.parser().verifyWith(key()).build().parseSignedClaims(authToken);
+                return true;
+            } catch (MalformedJwtException e) {
+                logger.error("Invalid JWT token: {}", e.getMessage());
+            } catch (ExpiredJwtException e) {
+                logger.error("JWT token is expired: {}", e.getMessage());
+            } catch (UnsupportedJwtException e) {
+                logger.error("JWT token is unsupported: {}", e.getMessage());
+            } catch (IllegalArgumentException e) {
+                logger.error("JWT claims string is empty: {}", e.getMessage());
+            }
+            return false;
+        }
+    }

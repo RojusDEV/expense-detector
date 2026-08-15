@@ -33,6 +33,26 @@ public class MerchantService {
         return find(normalizedName, userId).orElseGet(() -> create(normalizedName, userId));
     }
 
+
+    public Map<String, Merchant> findOrCreateBatch(Set<String> normalizedNames, UUID userId) {
+        if (normalizedNames.isEmpty()) return Map.of();
+
+        List<Merchant> existing = merchantRepository.findByNameInForUserOrGlobal(normalizedNames, userId);
+
+        Map<String, Merchant> result = existing.stream()
+                .collect(Collectors.toMap(Merchant::getName, m -> m, (a, b) -> a));
+
+        List<Merchant> toCreate = normalizedNames.stream()
+                .filter(name -> !result.containsKey(name))
+                .map(name -> new Merchant(name, userId))
+                .toList();
+
+        if (!toCreate.isEmpty()) {
+            merchantRepository.saveAll(toCreate).forEach(m -> result.put(m.getName(), m));
+        }
+        return result;
+    }
+
     public List<MerchantDTO> getMerchantsForUser(UUID user_id) {
         List<Merchant> merchants = merchantRepository.findByUserId(user_id).orElse(List.of());
 

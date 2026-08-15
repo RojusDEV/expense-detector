@@ -2,6 +2,7 @@ package com.expensedetector.backend.controller;
 
 import com.expensedetector.backend.model.DTO.SubscriptionsDTO;
 import com.expensedetector.backend.model.entity.Merchant;
+import com.expensedetector.backend.model.entity.Subscriptions;
 import com.expensedetector.backend.repository.MerchantRepository;
 import com.expensedetector.backend.repository.SubscriptionsRepository;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,7 @@ public class SubscriptionController {
         List<SubscriptionsDTO> dtos = subscriptionsRepository.findByUserId(user_id)
                 .orElse(List.of())
                 .stream()
+                .filter(Subscriptions::is_active)
                 .map(s -> SubscriptionsDTO.builder()
                         .id(s.getId())
                         .user_id(s.getUserId())

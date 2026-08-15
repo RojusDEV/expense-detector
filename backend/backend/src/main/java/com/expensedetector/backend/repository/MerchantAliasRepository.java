@@ -4,11 +4,12 @@ import com.expensedetector.backend.model.entity.MerchantAlias;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 @Repository
 public interface MerchantAliasRepository extends JpaRepository<MerchantAlias, UUID> {
-    List<MerchantAlias> findByMerchantIdIn(List<UUID> merchantIds);
+    List<MerchantAlias> findByMerchantIdIn(Collection<UUID> merchantIds);
     boolean existsByMerchantIdAndRawName(UUID merchantId, String rawName);
 }

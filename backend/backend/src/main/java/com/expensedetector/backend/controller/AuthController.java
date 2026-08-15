@@ -26,6 +26,7 @@
     import org.springframework.security.crypto.password.PasswordEncoder;
     import org.springframework.web.bind.annotation.*;
 
+    import java.util.List;
     import java.util.UUID;
 
     @RestController
@@ -53,6 +54,12 @@
             this.jwtUtils = jwtUtils;
             this.refreshTokenRepository = refreshTokenRepository;
             this.refreshTokenService = refreshTokenService;
+        }
+
+        @PostMapping("/demo-guest")
+        public ResponseEntity<?> genereateGuestToken() {
+            String token = jwtUtils.generateTokenForUser("demo_user", List.of("DEMO"));
+            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, token).build();
         }
 
         @PostMapping("/signin")

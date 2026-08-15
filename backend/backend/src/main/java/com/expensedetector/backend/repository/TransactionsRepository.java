@@ -61,7 +61,7 @@ public interface TransactionsRepository extends JpaRepository<Transaction, UUID>
         agg.income AS income,
         agg.expense AS expense,
         subs.subscriptions AS subscriptions,
-        agg.income - agg.expense - subs.subscriptions AS balance
+        agg.income - agg.expense AS balance
     FROM agg, subs
     """, nativeQuery = true)
     BalanceStatsDTO getBalanceStats(@Param("userId") UUID userId);

@@ -41,6 +41,10 @@ public class MathUtil<T extends Number> {
         return (value - mean) / stdDev;
     }
 
+
+    /**
+     * @return coefficient of variation as a ratio
+     */
     public double coefficientOfVariation(List<T> arr, int n) {
         return (standardDeviation(arr, n) / mean(arr, n));
     }

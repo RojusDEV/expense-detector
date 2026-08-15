@@ -23,8 +23,8 @@ public class SubscriptionService {
     private final SubscriptionsRepository subscriptionsRepository;
     private final TransactionsRepository transactionsRepository;
 
-    private static final double INTERVAL_CV_THRESHOLD = 0.4;
-    private static final double AMOUNT_CV_THRESHOLD = 0.5;
+    private static final double AMOUNT_CV_THRESHOLD = 0.15;
+    private static final double INTERVAL_CV_THRESHOLD = 0.35;
     private static final int MIN_TRANSACTIONS = 3;
     private static final double INACTIVITY_TOLERANCE = 1.75;
     private static final long MIN_SPAN_DAYS = 45;
@@ -68,25 +68,19 @@ public class SubscriptionService {
                     txs.getFirst().getTransactionDate(),
                     txs.getLast().getTransactionDate()
             );
-            System.out.println("===========================");
-            System.out.println(span);
-            System.out.println(merchant);
-            System.out.println(txs.getFirst().getTransactionDate());
-            System.out.println(txs.getLast().getTransactionDate());
-            System.out.println("===========================");
 
             if (span < MIN_SPAN_DAYS) {
                 return;
             }
 
-
+           //Investigate
             if (txs.getFirst().getCategory() != null
                     && txs.getFirst().getCategory().getName().equalsIgnoreCase("maistas")) {
                 return;
             }
 
             BigDecimal latestAmount = txs.getLast().getAmount();
-            if (latestAmount.compareTo(MIN_AMOUNT) < 0) {
+            if (latestAmount.compareTo(MIN_AMOUNT) <= 0) {
                 return;
             }
 
@@ -95,7 +89,7 @@ public class SubscriptionService {
                 return;
             }
 
-            if (!isSubscriptionPattern(merchant, stats)) {
+            if (!isSubscriptionPattern(stats)) {
                 return;
             }
 
@@ -128,12 +122,7 @@ public class SubscriptionService {
         return new SubscriptionStats(mean, intervalCv, amountCv);
     }
 
-    private boolean isSubscriptionPattern(Merchant merchant, SubscriptionStats stats) {
-        System.out.println("Merchant: " + merchant.getName()
-                + " | avgInterval: " + stats.avgIntervalDays()
-                + " | intervalCV: " + stats.intervalCv()
-                + " | amountCV: " + stats.amountCv());
-
+    private boolean isSubscriptionPattern(SubscriptionStats stats) {
         return stats.intervalCv() <= INTERVAL_CV_THRESHOLD
                 && stats.amountCv() <= AMOUNT_CV_THRESHOLD
                 && isKnownBillingCycle(stats.avgIntervalDays());
@@ -160,8 +149,6 @@ public class SubscriptionService {
         Optional<Subscriptions> existing = subscriptionsRepository
                 .findByUserIdAndMerchantId(userId, merchant.getId());
 
-        if (!active) return;
-
         Subscriptions subscription = existing.orElseGet(Subscriptions::new);
         if (existing.isEmpty()) {
             subscription.setId(UUID.randomUUID());
@@ -172,7 +159,7 @@ public class SubscriptionService {
 
         subscription.setName(merchant.getName());
         subscription.setMerchantId(merchant.getId());
-        subscription.setAmount(latestAmount);  // latest price, not historical average
+        subscription.setAmount(latestAmount);
         subscription.setFrequency_days((int) Math.round(stats.avgIntervalDays()));
         subscription.set_active(active);
 

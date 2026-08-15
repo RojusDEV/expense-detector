@@ -2,15 +2,12 @@ package com.expensedetector.backend.repository;
 
 import com.expensedetector.backend.model.DTO.MatchResult;
 import com.expensedetector.backend.model.entity.Merchant;
-import com.expensedetector.backend.model.entity.Subscriptions;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 public interface MerchantRepository extends JpaRepository<Merchant, UUID> {
@@ -34,4 +31,14 @@ public interface MerchantRepository extends JpaRepository<Merchant, UUID> {
     Optional<MatchResult> findMatching(@Param("name") String name, @Param("userId") UUID userId);
 
     Optional<List<Merchant>> findByUserId(UUID userId);
+
+    // MerchantRepository
+    @Query("""
+    SELECT m FROM Merchant m
+    WHERE m.name IN :names
+      AND (m.userId = :userId OR m.userId IS NULL)
+    """)
+    List<Merchant> findByNameInForUserOrGlobal(@Param("names") Set<String> names,
+                                               @Param("userId") UUID userId);
+
 }
