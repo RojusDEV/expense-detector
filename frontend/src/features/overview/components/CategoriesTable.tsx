@@ -18,6 +18,7 @@ const categoryStyles: Record<
   investavimas: { bg: "bg-[#3BA362]", hex: "#3BA362" },
   "kitos išlaidos": { bg: "bg-[#7C8A9A]", hex: "#7C8A9A" },
   null: { bg: "bg-[#7C8A9A]", hex: "#7C8A9A" },
+  kita: { bg: "bg-[#7C8A9A]", hex: "#7C8A9A" },
   išsilavinimas: { bg: "bg-[#2E9BC7]", hex: "#2E9BC7" },
   kelionės: { bg: "bg-[#2E9B8F]", hex: "#2E9B8F" },
   draudimas: { bg: "bg-[#D9A431]", hex: "#D9A431" },
