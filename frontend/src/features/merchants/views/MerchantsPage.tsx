@@ -1,4 +1,4 @@
-import { capitalize, colors } from "@/shared/utils/utils";
+import { capitalize, colors } from "@/lib/utils";
 import { getMerchantList } from "@/shared/api/merchantApi";
 import { useQuery } from "@tanstack/react-query";
 
@@ -51,7 +51,10 @@ const MerchantsPage = () => {
                   <div className="mt-2 flex flex-wrap gap-1">
                     {merchant.merchantAliases != undefined &&
                       merchant.merchantAliases.slice(0, 5).map((alias) => (
-                        <div className="font-brains rounded-sm border border-(--content-outline) bg-(--input-bg-black) px-2 py-1 text-sm" key={`${merchant.id}_${alias}`}>
+                        <div
+                          className="font-brains rounded-sm border border-(--content-outline) bg-(--input-bg-black) px-2 py-1 text-sm"
+                          key={`${merchant.id}_${alias}`}
+                        >
                           <span className="text-(--label-gray-300)">
                             {alias}
                           </span>

@@ -2,10 +2,10 @@ import { useRef, useMemo, useCallback } from "react";
 import { format } from "date-fns";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getTransactionsRequest } from "@/shared/api/transactionsApi";
-import { capitalize, colors } from "@/shared/utils/utils";
 import TransactionsFilters from "../components/TransactionsFilters";
 import { useFilterStore } from "@/shared/store/filterStore";
 import TransactionsSkeleton from "../components/TransactionsSkeleton";
+import { capitalize, colors } from "@/lib/utils";
 
 export const TransactionsPage = () => {
   const {

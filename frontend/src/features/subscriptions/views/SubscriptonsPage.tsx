@@ -1,4 +1,4 @@
-import { capitalize, formatDate } from "@/shared/utils/utils";
+import { capitalize, formatDate } from "@/lib/utils";
 import { getSubscriptionsRequest } from "@/shared/api/subsriptionsApi";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";

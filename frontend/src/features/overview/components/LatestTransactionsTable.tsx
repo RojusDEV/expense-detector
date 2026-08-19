@@ -1,5 +1,5 @@
 import type { latestTransactions } from "@/shared/types/types";
-import { colors } from "@/shared/utils/utils";
+import { colors } from "@/lib/utils";
 
 const CategoryBadge = ({ category }: { category: string }) => {
   const style = colors[category] ?? colors["kitos išlaidos"];
