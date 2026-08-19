@@ -40,7 +40,7 @@ const ImportPage = () => {
       },
     });
   };
-  
+
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     dragCounter.current = 0;
@@ -94,16 +94,26 @@ const ImportPage = () => {
   return (
     <div className="w-full bg-(--bg-primary-dashboard) px-8 py-7">
       <Modal ref={modalRef}>
-        <div className="max-w-95 w-full text-center ">
+        <div className="w-full max-w-95 text-center">
           <ModalHeading>Naudojatės demo versija</ModalHeading>
           <ModalParagraph>
             Demonstracinėje paskyroje failų įkelti negalima, jūs matote tik
             pavyzdinius duomenis. Susikurkite nemokamą paskyrą, kad galėtumėte
             įkelti savo banko išrašą.
           </ModalParagraph>
-          <div className="grid gap-4 mt-6">
-            <button className="bg-[#0E8C62] text-white p-3.5 rounded-xl font-semibold cursor-pointer" onClick={() => navigate("/auth/signup")}>Prisiregistruoti nemokamai</button>
-            <button className="text-[#6B7280] cursor-pointer hover:text-[#52565f]" onClick={() => modalRef.current?.close()}>Gal vėliau</button>
+          <div className="mt-6 grid gap-4">
+            <button
+              className="cursor-pointer rounded-xl bg-[#0E8C62] p-3.5 font-semibold text-white"
+              onClick={() => navigate("/auth/signup")}
+            >
+              Prisiregistruoti nemokamai
+            </button>
+            <button
+              className="cursor-pointer text-[#6B7280] hover:text-[#52565f]"
+              onClick={() => modalRef.current?.close()}
+            >
+              Gal vėliau
+            </button>
           </div>
         </div>
       </Modal>
