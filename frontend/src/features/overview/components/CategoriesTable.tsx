@@ -1,5 +1,5 @@
 import type { TransactionsSummary } from "@/shared/types/types";
-import { capitalize } from "@/shared/utils/utils";
+import { capitalize } from "@/lib/utils";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Pie } from "react-chartjs-2";
 
