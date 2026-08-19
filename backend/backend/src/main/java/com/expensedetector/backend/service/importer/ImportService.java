@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -104,7 +104,7 @@ public class ImportService {
             Set<String> distinctMerchantNames = new HashSet<>();
 
             try (CSVReader csvReader = new CSVReaderBuilder(
-                    new InputStreamReader(file.getInputStream(), Charset.forName("windows-1257")))
+                    new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))
                     .withSkipLines(1).build()) {
 
                 String[] row;
