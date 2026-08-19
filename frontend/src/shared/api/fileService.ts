@@ -4,28 +4,30 @@ type FilePayload = {
   file: File;
 };
 
-type data = {
+type Data = {
   importCount: number;
   duplicated: number;
 };
 
 export const uploadCsvFile = async (
   payload: FilePayload,
-  setUploadProgress: React.Dispatch<React.SetStateAction<number>>,
-): Promise<data> => {
+  onProgress: (progress: number) => void,
+): Promise<Data> => {
   const formData = new FormData();
   formData.append("file", payload.file);
 
-  const data = await axiosFileClient.post("/upload/csv", formData, {
+  const response = await axiosFileClient.post("/upload/csv", formData, {
     onUploadProgress: (progressEvent) => {
       const progress = progressEvent.total
         ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
         : 0;
-      setUploadProgress(Math.min(progress, 99));
+
+      onProgress(Math.min(progress, 99));
     },
     timeout: 50000,
   });
 
-  setUploadProgress(100);
-  return data.data;
+  onProgress(100);
+
+  return response.data;
 };
