@@ -2,7 +2,7 @@ import { useRef, useMemo, useCallback } from "react";
 import { format } from "date-fns";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getTransactionsRequest } from "@/shared/api/transactionsApi";
-import { capitalize, colors } from "@/shared/utils/utils";
+import { capitalize, colors } from "@/lib/utils";
 import TransactionsFilters from "../components/TransactionsFilters";
 import { useFilterStore } from "@/shared/store/filterStore";
 import TransactionsSkeleton from "../components/TransactionsSkeleton";
@@ -70,13 +70,12 @@ export const TransactionsPage = () => {
     [isLoading, hasNextPage, isFetching, fetchNextPage],
   );
 
-  // // TODO: add skeletons
   if (status === "error")
     return <span className="font-bold text-red-500">{error.message}</span>;
   if (status === "pending") return <TransactionsSkeleton />;
 
   return (
-    <div className="w-full bg-(--bg-primary-dashboard) px-8 py-7">
+    <div className="bg-(--bg-primary-dashboard) px-8 py-7">
       <h1 className="font-playfair text-2xl leading-[120%] font-medium text-(--text-primary-white)">
         Transakcijos
       </h1>
@@ -84,8 +83,8 @@ export const TransactionsPage = () => {
         {flattenedData.length} transakcijos · Sausis 2025
       </h2>
       <TransactionsFilters />
-      <div className="mt-4 overflow-hidden rounded-lg border-2 border-(--input-outline) bg-(--card-background) p-5">
-        <table className="w-full table-fixed text-sm text-(--text-primary-white)">
+      <div className="mt-4 max-w-screen overflow-auto rounded-lg border-2 border-(--input-outline) bg-(--card-background) p-5">
+        <table className="w-full max-w-screen min-w-175 text-sm text-(--text-primary-white)">
           <thead>
             <tr className="border-b border-(--input-outline) text-left text-(--text-gray-400)">
               <th className="pr-4 pb-3 font-medium">Data</th>
@@ -95,7 +94,7 @@ export const TransactionsPage = () => {
               <th className="pb-3 font-medium">Suma</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-(--input-outline)">
             {filteredData.map((transaction, index) => {
               const isLast = index === flattenedData.length - 1;
               const {
@@ -108,18 +107,16 @@ export const TransactionsPage = () => {
                 isExpense,
               } = transaction;
               return (
-                <tr
-                  key={id}
-                  ref={isLast ? lastElementRef : null}
-                  className="border-b border-(--input-outline)"
-                >
-                  <td className="py-3 pr-4">
+                <tr key={id} ref={isLast ? lastElementRef : null}>
+                  <td className="py-3 pr-4 whitespace-nowrap">
                     {transactionDate
                       ? format(new Date(transactionDate), "yyyy-MM-dd")
                       : "-"}
                   </td>
-                  <td className="py-3 pr-4">{capitalize(merchantName)}</td>
-                  <td className="py-3 pr-4">
+                  <td className="py-3 pr-4 whitespace-nowrap">
+                    {capitalize(merchantName)}
+                  </td>
+                  <td className="py-3 pr-4 whitespace-nowrap">
                     <span
                       className={`inline-block rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap ${categoryName ? colors[categoryName] : "bg-gray-500/20 text-gray-400"}`}
                     >
@@ -128,11 +125,11 @@ export const TransactionsPage = () => {
                         : "Nenustatyta"}
                     </span>
                   </td>
-                  <td className="font-outfit max-w-0 truncate py-3 pr-4 text-(--text-gray-400)">
+                  <td className="font-outfit max-w-0 truncate py-3 pr-4 whitespace-nowrap text-(--text-gray-400)">
                     {rawDescription}
                   </td>
                   <td
-                    className={`font-brains py-3 font-bold ${isExpense ? "text-[#F87171]" : "text-[#34D399]"}`}
+                    className={`font-brains py-3 font-bold ${isExpense ? "text-[#F87171]" : "text-[#34D399]"} whitespace-nowrap`}
                   >
                     {(!isExpense ? "+" : "") + "€" + amount}
                   </td>
