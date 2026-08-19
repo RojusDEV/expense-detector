@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { cn } from "@/shared/utils/utils";
+import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import {
   ChevronLeftIcon,

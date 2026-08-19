@@ -14,7 +14,7 @@ import {
   LuUpload,
 } from "react-icons/lu";
 import { useUserStore } from "../store/userStore";
-import { capitalize } from "../utils/utils";
+import { capitalize } from "../../lib/utils";
 type SidebarProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -31,8 +31,6 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const userStore = useUserStore((store) => store.user);
-
-
 
   const [isDark, setIsDark] = useState(() => {
     const stored = localStorage.getItem("theme");

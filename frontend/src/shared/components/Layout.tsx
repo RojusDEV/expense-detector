@@ -41,7 +41,7 @@ const Layout = () => {
 
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-      <main className="flex-1 pt-14 md:pt-0">
+      <main className="flex-1 min-w-0 pt-14 md:pt-0">
         <Outlet />
       </main>
     </div>
