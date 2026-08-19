@@ -46,14 +46,16 @@ const SubscriptonsPage = () => {
       <h2 className="mt-2 mb-5 font-normal text-(--text-gray-400)">
         Automatiškai aptiktos pasikartojančios transakcijos
       </h2>
-      <div className="grid justify-center rounded-md border border-(--border-amber-clr) bg-[#101214] py-5 text-center">
+      <div className="grid justify-center rounded-md border border-(--border-amber-clr) bg-(--card-background) py-5 text-center">
         <span className="font-semibold text-(--primary-amber-clr)">
           Bendra prenumeratų kaina
         </span>
+
         <span className="font-brains text-3xl font-bold text-(--primary-amber-clr)">
           €{monthlySum.toFixed(2)}
           <span className="text-sm text-(--text-gray-400)">/mėn.</span>
         </span>
+
         <span className="text-[0.75rem] text-(--text-gray-400)">
           €{(monthlySum * 12).toFixed(2)} per metus
         </span>

@@ -98,6 +98,7 @@ const ImportPage = () => {
     });
   };
 
+
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
 
@@ -241,9 +242,21 @@ const ImportPage = () => {
 
   return (
     <div className="w-full bg-(--bg-primary-dashboard) px-8 py-7">
-      <UploadLimitModal modalRef={modalRef} navigate={navigate} />
-
-      <div>
+      <Modal ref={modalRef}>
+        <div className="max-w-95 w-full text-center ">
+          <ModalHeading>Naudojatės demo versija</ModalHeading>
+          <ModalParagraph>
+            Demonstracinėje paskyroje failų įkelti negalima, jūs matote tik
+            pavyzdinius duomenis. Susikurkite nemokamą paskyrą, kad galėtumėte
+            įkelti savo banko išrašą.
+          </ModalParagraph>
+          <div className="grid gap-4 mt-6">
+            <button className="bg-[#0E8C62] text-white p-3.5 rounded-xl font-semibold cursor-pointer" onClick={() => navigate("/auth/signup")}>Prisiregistruoti nemokamai</button>
+            <button className="text-[#6B7280] cursor-pointer hover:text-[#52565f]" onClick={() => modalRef.current?.close()}>Gal vėliau</button>
+          </div>
+        </div>
+      </Modal>
+      <div className="">
         <h1 className="font-playfair text-2xl leading-[120%] font-medium text-(--text-primary-white)">
           Įkelti CSV failą
         </h1>
