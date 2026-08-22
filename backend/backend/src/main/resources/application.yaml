@@ -34,7 +34,7 @@ app:
   jwtSecret: ${JWTSecret}
   jwtExpirationMs: 600000
   jwtCookieName: expense
-  refreshExpirationMs: 86400000
+  refreshExpirationMs: 2629746000
 
 logging:
   level:

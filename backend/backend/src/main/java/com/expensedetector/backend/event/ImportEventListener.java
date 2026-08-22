@@ -20,7 +20,6 @@ public class ImportEventListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onImportCompleted(ImportCompletedEvent event) {
-        System.out.println("LISTENER FIRED for " + event.userId());
         anomalyService.detectAndSaveAnomalies(event.userId());
         subscriptionService.findSubscriptionsAsync(event.userId());
     }

@@ -8,6 +8,7 @@ import com.expensedetector.backend.model.entity.CategorySummaryDTO;
 import com.expensedetector.backend.model.entity.Transaction;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -104,4 +105,8 @@ ORDER BY t.transaction_date DESC LIMIT :size""", nativeQuery = true)
     ORDER BY months.month
     """, nativeQuery = true)
     List<MonthlyTrendDTO> getMonthlyTrends(@Param("userId") UUID userId);
+
+    @Modifying
+    @Query("update Transaction t set t.categoryId = :categoryId where t.userId = :userId and t.id = :transactionId")
+    void updateCategory(@Param("userId") UUID userId, UUID transactionId, Integer categoryId);
 }

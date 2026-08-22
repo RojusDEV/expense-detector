@@ -54,15 +54,16 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth ->
+                .authorizeHttpRequests(auth -> {
+                        auth.requestMatchers("/api/test/**").permitAll();
                         auth.requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/api/transactions/**", "/api/subscriptions/**", "/api/merchants/**", "/api/anomalies/**").authenticated()
-                                .anyRequest().authenticated()
+                                .anyRequest().authenticated();
+                            }
                 )
                 .userDetailsService(userDetailsService);
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 }

@@ -14,9 +14,14 @@
     import com.expensedetector.backend.security.jwt.JwtUtils;
     import com.expensedetector.backend.security.service.UserDetailsImpl;
     import com.expensedetector.backend.service.RefreshTokenService;
+    import com.expensedetector.backend.service.auth.LogoutService;
+    import jakarta.servlet.http.Cookie;
     import jakarta.servlet.http.HttpServletRequest;
+    import jakarta.servlet.http.HttpServletResponse;
     import jakarta.validation.Valid;
+    import org.springframework.beans.factory.annotation.Value;
     import org.springframework.http.HttpHeaders;
+    import org.springframework.http.HttpStatus;
     import org.springframework.http.ResponseCookie;
     import org.springframework.http.ResponseEntity;
     import org.springframework.security.authentication.AuthenticationManager;
@@ -39,14 +44,15 @@
         private final JwtUtils jwtUtils;
         private final RefreshTokenRepository refreshTokenRepository;
         private final RefreshTokenService refreshTokenService;
-
+        private final LogoutService logoutService;
         public AuthController(AuthenticationManager authenticationManager,
                               UserRepository userRepository,
                               RoleRepository roleRepository,
                               PasswordEncoder passwordEncoder,
                               JwtUtils jwtUtils,
                               RefreshTokenRepository refreshTokenRepository,
-                              RefreshTokenService refreshTokenService) {
+                              RefreshTokenService refreshTokenService,
+                              LogoutService logoutService) {
             this.authenticationManager = authenticationManager;
             this.userRepository = userRepository;
             this.roleRepository = roleRepository;
@@ -54,6 +60,7 @@
             this.jwtUtils = jwtUtils;
             this.refreshTokenRepository = refreshTokenRepository;
             this.refreshTokenService = refreshTokenService;
+            this.logoutService = logoutService;
         }
 
         @PostMapping("/demo-guest")
@@ -102,6 +109,31 @@
             ));
         }
 
+
+        @Value("${app.jwtCookieName}")
+        private String jwtCookieName;
+
+        @PostMapping("/demo-login")
+        public ResponseEntity<?> demoLoginUser() {
+
+            String token = jwtUtils.generateTokenFromUserId("516a0924-9a92-4168-ae15-3132aecfd1e3");
+
+            if(token == null || token.isBlank()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse("Demo user was not found or doesn't exist"));
+            }
+
+            ResponseCookie responseCookie = ResponseCookie.from(jwtCookieName, token)
+                    .path("/api")
+                    .maxAge(600)
+                    .httpOnly(true)
+                    .secure(true)
+                    .sameSite("Strict")
+                    .build();
+
+
+            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, responseCookie.toString()).body(new MessageResponse("Demo user login successful"));
+        }
+
         @PostMapping("/signup")
         public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signupRequest) {
             if (userRepository.existsByEmail(signupRequest.getEmail())) {
@@ -140,7 +172,7 @@
         }
 
         @PostMapping("/refresh")
-        public ResponseEntity<?> refreshToken(HttpServletRequest request) {
+        public ResponseEntity<MessageResponse> refreshToken(HttpServletRequest request) {
             String requestToken = jwtUtils.getRefreshTokenFromCookies(request); // new method, mirrors getJwtFromCookies
             if (requestToken == null) {
                 return ResponseEntity.status(401).body(new MessageResponse("No refresh token."));
@@ -165,12 +197,7 @@
         }
 
         @PostMapping("/signout")
-        public ResponseEntity<?> logoutUser() {
-            ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
-            ResponseCookie refreshCookie = jwtUtils.getCleanRefreshCookie();
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                    .body(new MessageResponse("You've been signed out!"));
+        public ResponseEntity<?> logoutUser(HttpServletRequest request, HttpServletResponse response) {
+            return logoutService.logout(request, response);
         }
     }

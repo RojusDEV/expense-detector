@@ -103,3 +103,8 @@ export const loginApi = async (payload: LoginPayload) => {
   const { data } = await myAuthApi.post("/signin", payload);
   return data;
 };
+
+
+export const signoutApi = async () => {
+  return await myAuthApi.post("/signout");
+};

@@ -20,15 +20,21 @@ public class SwedbankNormalizer implements BankNormalizer {
         return Normalizer.normalize(input, Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "");
     }
+
+    private static final int TRANSFER_CATEGORY_ID = 4; //Pervedimai
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
     @Override
     public Transaction normalizeTransaction(String[] row, Users user, Merchant merchant, Optional<Category> category) {
-        Transaction t = new Transaction();
+        boolean isExpense = "D".equals(row[7]);
+        int categoryId = isExpense
+                ? category.map(Category::getId).orElse(0) : TRANSFER_CATEGORY_ID;
 
-        LocalDate transactionDate = LocalDate.parse(row[2], DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        t.setTransactionDate(transactionDate);
+        Transaction t = new Transaction();
+        t.setTransactionDate(LocalDate.parse(row[2], DATE_FORMAT));
         t.setMerchantId(merchant.getId());
         t.setUserId(user.getId());
-        t.setCategoryId(category.map(Category::getId).orElse(0));
+        t.setCategoryId(categoryId);
         t.setRawDescription(row[4]);
         t.setRawRecipient(row[3]);
         t.setAmount(new BigDecimal(row[5].replace(',', '.')));
@@ -36,7 +42,7 @@ public class SwedbankNormalizer implements BankNormalizer {
         t.setRecordId(new BigDecimal(row[8]).longValue());
         t.setDescription(null);
         t.setBankSource("swedbank");
-        t.setExpense(row[7].equals("D"));
+        t.setExpense(isExpense);
         return t;
     }
 

@@ -10,7 +10,7 @@ type Inputs = {
   password: string;
 };
 
-const RegisterPage = () => {
+const SignupPage = () => {
   const [defaultBank, setDefaultBank] = useState("swedbank");
   const navigate = useNavigate();
   const [apiError, setApiError] = useState<string | null>(null);
@@ -169,4 +169,4 @@ const RegisterPage = () => {
   );
 };
 
-export default RegisterPage;
+export default SignupPage;

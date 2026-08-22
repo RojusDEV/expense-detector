@@ -74,7 +74,7 @@ const LoginPage = () => {
           <span className="mt-5 text-center text-[13px] text-(--text-gray-400)">
             Neturite paskyros?{" "}
             <Link
-              to="/auth/register"
+              to="/auth/signup"
               className="font-bold text-(--text-green-200)"
             >
               Registruotis
