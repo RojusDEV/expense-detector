@@ -5,7 +5,6 @@ import { TransactionsPage } from "../features/transactions/views/TransactionsPag
 import ImportPage from "../features/import/views/ImportPage";
 import AuthLayout from "../shared/components/AuthLayout";
 import LoginPage from "../features/auth/views/LoginPage";
-import RegisterPage from "../features/auth/views/RegisterPage";
 import { HeroPage } from "../features/hero/views/HeroPage";
 import ProtectedRoute from "../shared/components/ProtectedRoute";
 import SubscriptonsPage from "../features/subscriptions/views/SubscriptonsPage";
@@ -13,7 +12,7 @@ import AnomaliesPage from "../features/anomalies/views/AnomaliesPage";
 import SavingsPage from "../features/savings/views/SavingsPage";
 import InsightsPage from "../features/insights/views/InsightsPage";
 import MerchantsPage from "../features/merchants/views/MerchantsPage";
-import { DemoModeProvider } from "../shared/context/DemoModeContext";
+import SignupPage from "../features/auth/views/RegisterPage";
 
 const router = createBrowserRouter([
   {
@@ -39,30 +38,30 @@ const router = createBrowserRouter([
       },
     ],
   },
-  {
-    path: "/dashboard/preview",
-    Component: () => (
-      <DemoModeProvider>
-        <Layout />
-      </DemoModeProvider>
-    ),
-    children: [
-      { index: true, Component: OverviewPage },
-      { path: "transactions", Component: TransactionsPage },
-      { path: "merchants", Component: MerchantsPage },
-      { path: "subscriptions", Component: SubscriptonsPage },
-      { path: "anomalies", Component: AnomaliesPage },
-      { path: "savings", Component: SavingsPage },
-      { path: "insights", Component: InsightsPage },
-      { path: "import", Component: ImportPage },
-    ],
-  },
+  // {
+  //   path: "/dashboard/preview",
+  //   Component: () => (
+  //     <DemoModeProvider>
+  //       <Layout />
+  //     </DemoModeProvider>
+  //   ),
+  //   children: [
+  //     { index: true, Component: OverviewPage },
+  //     { path: "transactions", Component: TransactionsPage },
+  //     { path: "merchants", Component: MerchantsPage },
+  //     { path: "subscriptions", Component: SubscriptonsPage },
+  //     { path: "anomalies", Component: AnomaliesPage },
+  //     { path: "savings", Component: SavingsPage },
+  //     { path: "insights", Component: InsightsPage },
+  //     { path: "import", Component: ImportPage },
+  //   ],
+  // },
   {
     path: "auth",
     Component: AuthLayout,
     children: [
       { path: "login", Component: LoginPage },
-      { path: "register", Component: RegisterPage },
+      { path: "signup", Component: SignupPage },
     ],
   },
 ]);
