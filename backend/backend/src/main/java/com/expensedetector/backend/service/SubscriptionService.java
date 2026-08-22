@@ -3,6 +3,7 @@ package com.expensedetector.backend.service;
 import com.expensedetector.backend.model.entity.Merchant;
 import com.expensedetector.backend.model.entity.Subscriptions;
 import com.expensedetector.backend.model.entity.Transaction;
+import com.expensedetector.backend.repository.CategoryKeywordsRepository;
 import com.expensedetector.backend.repository.SubscriptionsRepository;
 import com.expensedetector.backend.repository.TransactionsRepository;
 import com.expensedetector.backend.util.MathUtil;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 public class SubscriptionService {
     private final SubscriptionsRepository subscriptionsRepository;
     private final TransactionsRepository transactionsRepository;
-
+    private final CategoryKeywordsRepository categoryKeywordsRepository;
     private static final double AMOUNT_CV_THRESHOLD = 0.15;
     private static final double INTERVAL_CV_THRESHOLD = 0.35;
     private static final int MIN_TRANSACTIONS = 3;
@@ -33,9 +34,10 @@ public class SubscriptionService {
     private final MathUtil<Number> mathUtil = new MathUtil<>();
 
     @Autowired
-    public SubscriptionService(SubscriptionsRepository subscriptionsRepository, TransactionsRepository transactionsRepository) {
+    public SubscriptionService(SubscriptionsRepository subscriptionsRepository, TransactionsRepository transactionsRepository, CategoryKeywordsRepository categoryKeywordsRepository) {
         this.subscriptionsRepository = subscriptionsRepository;
         this.transactionsRepository = transactionsRepository;
+        this.categoryKeywordsRepository = categoryKeywordsRepository;
     }
 
     @Async
@@ -43,25 +45,26 @@ public class SubscriptionService {
     public void findSubscriptionsAsync(UUID userId) {
         findSubscriptions(transactionsRepository.findByUserId(userId));
     }
-
+    @Transactional
     public void findSubscriptions(List<Transaction> transactions) {
+
         if (transactions.isEmpty()) {
             return;
         }
-
+        //Group merchants: { Specific merchant : {transactions[]} }
         Map<Merchant, List<Transaction>> grouped = transactions.stream()
                 .filter(Objects::nonNull)
+                .filter(Transaction::isExpense)
                 .filter(t -> t.getMerchant() != null)
                 .filter(t -> t.getTransactionDate() != null)
                 .filter(t -> t.getAmount() != null)
                 .collect(Collectors.groupingBy(Transaction::getMerchant));
 
-        grouped.forEach((merchant, txsForMerchant) -> {
-            if (txsForMerchant.size() < MIN_TRANSACTIONS) {
+        grouped.forEach((merchant, txs) -> {
+            if (txs.size() < MIN_TRANSACTIONS) {
                 return;
             }
 
-            List<Transaction> txs = new ArrayList<>(txsForMerchant);
             txs.sort(Comparator.comparing(Transaction::getTransactionDate));
 
             long span = ChronoUnit.DAYS.between(
@@ -95,7 +98,13 @@ public class SubscriptionService {
 
             boolean active = isRecentlyActive(txs, stats.avgIntervalDays);
 
+            //Check if keyword exists in category keywords
+            transactionsRepository.updateCategory(txs.getLast().getUserId(), txs.getLast().getId(), 13);
+
+            //Save to DB or update it
             saveOrUpdate(txs, merchant, stats, active, latestAmount);
+
+
         });
     }
 
@@ -146,11 +155,12 @@ public class SubscriptionService {
     private void saveOrUpdate(List<Transaction> txs, Merchant merchant, SubscriptionStats stats, boolean active, BigDecimal latestAmount) {
         UUID userId = txs.getFirst().getUserId();
 
-        Optional<Subscriptions> existing = subscriptionsRepository
+        //Find existing subscriptions
+        Optional<Subscriptions> existingSubs = subscriptionsRepository
                 .findByUserIdAndMerchantId(userId, merchant.getId());
 
-        Subscriptions subscription = existing.orElseGet(Subscriptions::new);
-        if (existing.isEmpty()) {
+        Subscriptions subscription = existingSubs.orElseGet(Subscriptions::new);
+        if (existingSubs.isEmpty()) {
             subscription.setId(UUID.randomUUID());
             subscription.setUserId(userId);
             subscription.setFrom_date(Date.from(
@@ -162,7 +172,6 @@ public class SubscriptionService {
         subscription.setAmount(latestAmount);
         subscription.setFrequency_days((int) Math.round(stats.avgIntervalDays()));
         subscription.set_active(active);
-
-        subscriptionsRepository.save(subscription);
+        subscriptionsRepository.save(subscription); //Save to DB
     }
 }

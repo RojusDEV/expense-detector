@@ -4,6 +4,9 @@ import { useAuth } from "../hooks/AuthContext";
 const ProtectedRoute = () => {
   const { user, loading } = useAuth();
 
+  console.log(user);
+
+
   if (loading) return null;
   
   return user ? <Outlet /> : <Navigate to="/auth/login" replace />;

@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
+import { GoSignOut } from "react-icons/go";
 import {
   LuLayoutGrid,
   LuAlignLeft,
@@ -12,9 +13,11 @@ import {
   LuSearch,
   LuMoon,
   LuUpload,
+  LuSettings,
 } from "react-icons/lu";
 import { useUserStore } from "../store/userStore";
 import { capitalize } from "../../lib/utils";
+import { signoutApi } from "../api/AuthApi";
 type SidebarProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -49,6 +52,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
     { name: "Prekybininkai", link: "merchants", icon: <LuStore /> },
     { name: "Prenumeratos", link: "subscriptions", icon: <LuCreditCard /> },
     { name: "Anomalijos", link: "anomalies", icon: <LuTriangleAlert /> },
+    { name: "Nustatymai", link: "settings", icon: <LuSettings /> },
   ];
 
   const premiumLinks: LinkItem[] = [
@@ -58,6 +62,16 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
   const filterLinks = (arr: LinkItem[]) =>
     arr.filter((el) => el.name.toLowerCase().includes(search.toLowerCase()));
+
+  const handleSignout = async () => {
+    try {
+      const response = await signoutApi();
+      await navigate("/");
+      console.log(response);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const renderLink = (el: LinkItem) => {
     if (el.locked) {
@@ -237,10 +251,15 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                   {capitalize(userStore?.name)}
                 </span>
                 <span className="text-xs text-(--text-gray-400)">
-                  Swedbank · SEB · Revolut
+                  Basic Member
                 </span>
               </span>
-              {/* <FiChevronDown className="text-sm text-(--text-gray-400)" /> */}
+              <button
+                className="cursor-pointer"
+                onClick={() => handleSignout()}
+              >
+                <GoSignOut />
+              </button>
             </button>
           </div>
         </div>

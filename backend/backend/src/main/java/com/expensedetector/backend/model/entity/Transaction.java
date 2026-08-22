@@ -9,9 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -74,4 +72,5 @@ public class Transaction {
     @NotNull
     @Column(name = "transaction_date", nullable = false)
     private LocalDate transactionDate;
+
 }

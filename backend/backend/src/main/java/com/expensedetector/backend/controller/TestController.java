@@ -47,7 +47,7 @@ public class TestController {
 
 
     @GetMapping("/subscriptions")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public void testSubscriptions() {
         subscriptionService.findSubscriptions(transactionsRepository.findAll());
     }

@@ -18,6 +18,7 @@ import org.springframework.web.util.WebUtils;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 
@@ -71,13 +72,16 @@ public class JwtUtils {
         return null;
     }
 
+    @Value("${app.refreshExpirationMs}")
+    private long refreshExpirationMs;
+
     @Value("${expensedetector.app.jwtRefreshCookieName:refreshToken}")
     private String jwtRefreshCookie;
 
     public ResponseCookie generateRefreshCookie(String refreshToken) {
         return ResponseCookie.from(jwtRefreshCookie, refreshToken)
-                .path("/api/auth/refresh")
-                .maxAge(7 * 24 * 60 * 60)
+                .path("/api/auth")
+                .maxAge(Duration.ofMillis(refreshExpirationMs))
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("Strict")

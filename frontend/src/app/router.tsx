@@ -12,7 +12,7 @@ import AnomaliesPage from "../features/anomalies/views/AnomaliesPage";
 import SavingsPage from "../features/savings/views/SavingsPage";
 import InsightsPage from "../features/insights/views/InsightsPage";
 import MerchantsPage from "../features/merchants/views/MerchantsPage";
-import SignupPage from "../features/auth/views/RegisterPage";
+import SignupPage from "../features/auth/views/SignupPage";
 
 const router = createBrowserRouter([
   {

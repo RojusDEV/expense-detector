@@ -34,4 +34,5 @@ export const colors: Record<string, string> = {
   kelionės: "bg-teal-500/20 text-teal-400",
   draudimas: "bg-yellow-500/20 text-yellow-400",
   apsipirkimas: "bg-rose-500/20 text-rose-400",
+  prenumeratos: "bg-pink-700/20 text-pink-400"
 };

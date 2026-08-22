@@ -1,8 +1,24 @@
 import { useNavigate } from "react-router";
 import NavBar from "../components/NavBar";
 import { FaCircleCheck, FaArrowRightLong, FaPlay } from "react-icons/fa6";
+import { myAuthApi } from "@/shared/api/AuthApi";
+import { useAuth } from "@/shared/hooks/AuthContext";
 export const HeroPage = () => {
   const navigate = useNavigate();
+  const { refetchUser } = useAuth();
+  const getDemoAccessCookie = async () => {
+    try {
+      const response = await myAuthApi.post("/demo-login");
+
+      if (response.status === 200) {
+        await refetchUser();
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <div className="bg-hero-page-bg h-screen w-screen">
       <NavBar />
@@ -24,7 +40,10 @@ export const HeroPage = () => {
                 Pradėti nemokamai
                 <FaArrowRightLong />
               </button>
-              <button className="bg-color-hero-card-bg border-hero-control-border flex cursor-pointer items-center gap-2.25 rounded-[0.6875rem] border px-5.5 py-3.5" onClick={() => navigate("/dashboard/preview")}>
+              <button
+                className="bg-color-hero-card-bg border-hero-control-border flex cursor-pointer items-center gap-2.25 rounded-[0.6875rem] border px-5.5 py-3.5"
+                onClick={() => getDemoAccessCookie()}
+              >
                 <div className="bg-hero-accent-soft-bg flex h-5 w-5 items-center justify-center rounded-full font-medium">
                   <FaPlay color="#2ee6a0" size={8} />
                 </div>
