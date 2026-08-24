@@ -27,13 +27,13 @@ export const TransactionsPage = () => {
 
   const filters = useFilterStore((state) => state.filters);
 
-  const flattenedData = useMemo(
-    () => (data ? data.pages.flatMap((page) => page.data) : []),
+  const flattenedTransactions = useMemo(
+    () => (data ? data.pages.flatMap((page) => page.data.transactions) : []),
     [data],
   );
 
-  const filteredData = useMemo(() => {
-    return flattenedData.filter((t) => {
+  const filteredTransactionData = useMemo(() => {
+    return flattenedTransactions.filter((t) => {
       const txDate = new Date(t.transactionDate);
 
       if (filters.fromDate && txDate < filters.fromDate) return false;
@@ -52,7 +52,7 @@ export const TransactionsPage = () => {
 
       return true;
     });
-  }, [flattenedData, filters]);
+  }, [flattenedTransactions, filters]);
 
   const observer = useRef<IntersectionObserver | undefined>(undefined);
 
@@ -74,13 +74,19 @@ export const TransactionsPage = () => {
     return <span className="font-bold text-red-500">{error.message}</span>;
   if (status === "pending") return <TransactionsSkeleton />;
 
+  const latestTransactionDate =
+    data?.pages[0]?.data.transactions[0].transactionDate;
+
   return (
     <div className="bg-(--bg-primary-dashboard) px-8 py-7">
       <h1 className="font-playfair text-2xl leading-[120%] font-medium text-(--text-primary-white)">
         Transakcijos
       </h1>
       <h2 className="mt-2 mb-5 font-normal text-(--text-gray-400)">
-        {flattenedData.length} transakcijos · Sausis 2025
+        {data?.pages[0]?.data.transactionsCount ?? 0} transakcijos ·{" "}
+        {latestTransactionDate
+          ? format(new Date(latestTransactionDate), "yyyy-MM")
+          : "-"}
       </h2>
       <TransactionsFilters />
       <div className="mt-4 max-w-screen overflow-auto rounded-lg border-2 border-(--input-outline) bg-(--card-background) p-5">
@@ -95,8 +101,8 @@ export const TransactionsPage = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-(--input-outline)">
-            {filteredData.map((transaction, index) => {
-              const isLast = index === flattenedData.length - 1;
+            {filteredTransactionData.map((transaction, index) => {
+              const isLast = index === flattenedTransactions.length - 1;
               const {
                 id,
                 amount,
