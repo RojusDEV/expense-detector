@@ -14,21 +14,25 @@ export const getTransactionsRequest = async ({
 }: {
   offset: number;
 }): Promise<{
-  data: Transaction[];
+  data: {
+    transactions: Transaction[];
+    transactionsCount: number; 
+  };
   currentPage: number;
   nextPage: number | null;
 }> => {
   const pageParam = offset ?? 0;
-  const data = await axiosClient.get(
+  const response = await axiosClient.get(
     `${import.meta.env.VITE_BASE_URL}/transactions`,
     { params: { pageParam } },
   );
-  const transactions = data.data.transactions;
+
+  const body = response.data.data;
 
   return {
-    data: transactions,
+    data: body,
     currentPage: pageParam,
-    nextPage: transactions.length < LIMIT ? null : pageParam + 1,
+    nextPage: body.transactions.length < LIMIT ? null : pageParam + 1,
   };
 };
 

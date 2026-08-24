@@ -31,9 +31,9 @@ export const OverviewPage = () => {
           <h1 className="font-playfair text-2xl leading-[120%] font-medium text-(--text-primary-white)">
             Apžvalga
           </h1>
-          <h2 className="mt-2 mb-5 font-normal text-(--text-gray-400)">
+          {/* <h2 className="mt-2 mb-5 font-normal text-(--text-gray-400)">
             Sausis 2025 · 342 transakcijos · Paskutinis importas: vakar
-          </h2>
+          </h2> */}
         </div>
         {/* <div className="grid rounded-xl bg-(--opaque-green-insight-card-bg) p-4 text-right outline-2 outline-(--green-outline-card)">
           <span className="text-sm font-semibold text-(--neon-green)">

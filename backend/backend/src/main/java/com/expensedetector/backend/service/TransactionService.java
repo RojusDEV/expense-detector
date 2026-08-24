@@ -21,8 +21,8 @@ public class TransactionService {
 
     public List<TransactionDTO> getTransactions(UUID userId, Optional<Integer> pageParam) {
         List<Transaction> transactions = pageParam
-                .map(page -> transactionsRepository.findByUserId(userId, PageRequest.of(page, 10)))
-                .orElseGet(() -> transactionsRepository.findByUserId(userId));
+                .map(page -> transactionsRepository.findByUserIdOrderByTransactionDateDesc(userId, PageRequest.of(page, 10)))
+                .orElseGet(() -> transactionsRepository.findByUserIdOrderByTransactionDateDesc(userId));
 
         return transactions.stream()
                 .map(this::toDto)
