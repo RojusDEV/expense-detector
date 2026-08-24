@@ -7,6 +7,7 @@ import com.expensedetector.backend.model.DTO.MonthlyTrendDTO;
 import com.expensedetector.backend.model.entity.CategorySummaryDTO;
 import com.expensedetector.backend.model.entity.Transaction;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -77,6 +78,8 @@ ORDER BY t.transaction_date DESC LIMIT :size""", nativeQuery = true)
     List<LatestTransactionsDto> getLatestTransactions(@Param("userId") UUID userId, Integer size);
 
 
+    List<Transaction> findByUserIdOrderByTransactionDateDesc(UUID userId, Pageable pageable);
+    List<Transaction> findByUserIdOrderByTransactionDateDesc(UUID userId);
 
     @Query(value = """
     WITH months AS (
@@ -106,6 +109,8 @@ ORDER BY t.transaction_date DESC LIMIT :size""", nativeQuery = true)
     """, nativeQuery = true)
     List<MonthlyTrendDTO> getMonthlyTrends(@Param("userId") UUID userId);
 
+
+    Integer countByUserId(UUID userId);
     @Modifying
     @Query("update Transaction t set t.categoryId = :categoryId where t.userId = :userId and t.id = :transactionId")
     void updateCategory(@Param("userId") UUID userId, UUID transactionId, Integer categoryId);

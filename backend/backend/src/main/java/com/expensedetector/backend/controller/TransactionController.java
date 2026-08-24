@@ -3,8 +3,10 @@ package com.expensedetector.backend.controller;
 import com.expensedetector.backend.model.DTO.*;
 import com.expensedetector.backend.model.entity.CategorySummaryDTO;
 import com.expensedetector.backend.payload.response.*;
+import com.expensedetector.backend.repository.TransactionsRepository;
 import com.expensedetector.backend.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,16 +24,28 @@ import java.util.UUID;
 public class TransactionController {
 
     private final TransactionService transactionService;
+    private final TransactionsRepository transactionsRepository;
+
+
+    public record ApiResponse<T>(T data) {}
+
     @Autowired
-    public TransactionController(TransactionService transactionService) {
+    public TransactionController(TransactionService transactionService, TransactionsRepository transactionsRepository) {
         this.transactionService = transactionService;
+        this.transactionsRepository = transactionsRepository;
     }
 
     @GetMapping
-    public ResponseEntity<TransactionsResponse> getTransactions(@RequestParam(required = false) Optional<Integer> pageParam, Authentication authentication) {
+    public ResponseEntity<ApiResponse<TransactionsResponse>> getTransactions(@RequestParam(required = false) Optional<Integer> pageParam, Authentication authentication) {
         UUID userId = UUID.fromString(authentication.getName());
         List<TransactionDTO> dtos = transactionService.getTransactions(userId, pageParam);
-        return ResponseEntity.ok(new TransactionsResponse(dtos));
+        Integer totalTransactionsCount = transactionsRepository.countByUserId(userId);
+        if (dtos != null) {
+            TransactionsResponse body = new TransactionsResponse(dtos, totalTransactionsCount);
+            return new ResponseEntity<>(new ApiResponse<>(body), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
 //    @GetMapping("/latest-import-data")
