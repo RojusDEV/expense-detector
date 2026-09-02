@@ -15,7 +15,6 @@
     import com.expensedetector.backend.security.service.UserDetailsImpl;
     import com.expensedetector.backend.service.RefreshTokenService;
     import com.expensedetector.backend.service.auth.LogoutService;
-    import jakarta.servlet.http.Cookie;
     import jakarta.servlet.http.HttpServletRequest;
     import jakarta.servlet.http.HttpServletResponse;
     import jakarta.validation.Valid;
@@ -27,6 +26,7 @@
     import org.springframework.security.authentication.AuthenticationManager;
     import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
     import org.springframework.security.core.Authentication;
+    import org.springframework.security.core.GrantedAuthority;
     import org.springframework.security.core.context.SecurityContextHolder;
     import org.springframework.security.crypto.password.PasswordEncoder;
     import org.springframework.web.bind.annotation.*;
@@ -78,7 +78,7 @@
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             String role = userDetails.getAuthorities().stream()
                     .findFirst()
-                    .map(item -> item.getAuthority())
+                    .map(GrantedAuthority::getAuthority)
                     .orElse(null);
 
             ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
@@ -156,9 +156,10 @@
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            assert userDetails != null;
             String role = userDetails.getAuthorities().stream()
                     .findFirst()
-                    .map(item -> item.getAuthority())
+                    .map(GrantedAuthority::getAuthority)
                     .orElse(null);
 
             ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
