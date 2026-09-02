@@ -26,10 +26,19 @@ export const myAuthApi = axios.create({
 });
 
 let isRefreshing = false;
-let refreshQueue: Array<() => void> = [];
+let refreshQueue: Array<{
+  resolve: () => void;
+  reject: (error: unknown) => void;
+}> = [];
 
-const processQueue = (error: any = null) => {
-  refreshQueue.forEach((cb) => cb());
+const processQueue = (error: unknown = null) => {
+  refreshQueue.forEach(({ resolve, reject }) => {
+    if (error) {
+      reject(error);
+    } else {
+      resolve();
+    }
+  });
   refreshQueue = [];
 };
 
@@ -54,8 +63,11 @@ myApi.interceptors.response.use(
 
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
-        refreshQueue.push(() => {
-          resolve(myApi(originalRequest));
+        refreshQueue.push({
+          resolve: () => {
+            resolve(myApi(originalRequest));
+          },
+          reject,
         });
       });
     }
