@@ -22,6 +22,7 @@ const categoryStyles: Record<
   kelionės: { bg: "bg-[#2E9B8F]", hex: "#2E9B8F" },
   draudimas: { bg: "bg-[#D9A431]", hex: "#D9A431" },
   apsipirkimas: { bg: "bg-[#D9557A]", hex: "#D9557A" },
+  prenumeratos: { bg: "bg-[#1DB954]", hex: "#1DB954" },
 };
 
 const CategoryBadge = ({ category }: { category: string }) => {

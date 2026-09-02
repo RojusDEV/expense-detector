@@ -5,26 +5,49 @@ import type {
   Transaction,
   TransactionsSummary,
 } from "../types/types";
+import type { TransactionFilters } from "../store/filterStore";
+import { format } from "date-fns";
 import { axiosClient } from "./axiosClient";
+import { myApi } from "./AuthApi";
 
 const LIMIT = 10;
 
+export type TransactionRequestFilters = Partial<TransactionFilters>;
+
+const serializeFilters = (filters: TransactionRequestFilters) =>
+  Object.fromEntries(
+    Object.entries(filters)
+      .filter(
+        ([, value]) => value !== undefined && value !== null && value !== "",
+      )
+      .map(([key, value]) => [
+        key,
+        value instanceof Date ? format(value, "yyyy-MM-dd") : value,
+      ]),
+  );
+
 export const getTransactionsRequest = async ({
   offset,
+  ...filters
 }: {
   offset: number;
-}): Promise<{
+} & TransactionRequestFilters): Promise<{
   data: {
     transactions: Transaction[];
-    transactionsCount: number; 
+    transactionsCount: number;
   };
   currentPage: number;
   nextPage: number | null;
 }> => {
   const pageParam = offset ?? 0;
-  const response = await axiosClient.get(
+  const response = await myApi.get(
     `${import.meta.env.VITE_BASE_URL}/transactions`,
-    { params: { pageParam } },
+    {
+      params: {
+        pageParam,
+        ...serializeFilters(filters),
+      },
+    },
   );
 
   const body = response.data.data;
@@ -60,7 +83,6 @@ export const getBalanceStats = async (): Promise<balanceStats> => {
 
   return data;
 };
-
 
 export const getMonthlyTrends = async (): Promise<monthlyTrends> => {
   const { data } = await axiosClient.get(

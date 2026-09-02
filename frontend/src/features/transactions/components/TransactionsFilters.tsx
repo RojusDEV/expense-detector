@@ -1,12 +1,13 @@
 import { Calendar } from "@/shared/components/ui/calendar";
+import { Button } from "@/shared/components/ui/button";
 import { useFilterStore } from "@/shared/store/filterStore";
 import { format } from "date-fns";
+import { Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 const TransactionsFilters = () => {
-  const filters = useFilterStore((state) => state.filters);
-  const setFilter = useFilterStore((state) => state.setFilter);
-
+  const { filters, setFilter } = useFilterStore();
+  const [searchDraft, setSearchDraft] = useState(filters.search ?? "");
   const [showFrom, setShowFrom] = useState(false);
   const [showTo, setShowTo] = useState(false);
 
@@ -27,14 +28,38 @@ const TransactionsFilters = () => {
   const inputClass =
     "rounded-md bg-(--input-bg-black) px-3 py-2 text-[0.75rem] font-medium text-(--text-primary-white) outline-1 outline-(--content-outline)";
 
+  useEffect(() => {
+    setSearchDraft(filters.search ?? "");
+  }, [filters.search]);
+
+  const applySearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setFilter("search", searchDraft.trim() || null);
+  };
+
   return (
     <div className="flex w-full min-w-0 flex-col gap-2 md:flex-row md:flex-wrap md:items-center">
-      <input
-        type="text"
-        placeholder="🔍 Ieškoti prekybininko..."
-        className={`${inputClass} order-first w-full md:order-3 md:w-auto md:max-w-60`}
-        onChange={(e) => setFilter("search", e.target.value)}
-      />
+      <form
+        onSubmit={applySearch}
+        className="order-first flex w-full gap-2 md:order-3 md:w-auto"
+      >
+        <input
+          type="search"
+          value={searchDraft}
+          placeholder="Ieškoti prekybininko..."
+          className={`${inputClass} min-w-0 flex-1 md:w-52 md:flex-none`}
+          onChange={(e) => setSearchDraft(e.target.value)}
+        />
+        <Button
+          type="submit"
+          size="icon"
+          aria-label="Ieškoti"
+          title="Ieškoti"
+          className="border-(--content-outline) bg-(--btn-bg-green) text-(--text-black) hover:bg-(--btn-bg-green) hover:brightness-90 focus-visible:border-(--green-outline) focus-visible:ring-(--green-outline)"
+        >
+          <Search />
+        </Button>
+      </form>
 
       <div className="flex gap-2">
         <div

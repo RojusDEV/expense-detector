@@ -36,27 +36,33 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<TransactionsResponse>> getTransactions(@RequestParam(required = false) Optional<Integer> pageParam, Authentication authentication) {
+    public ResponseEntity<ApiResponse<TransactionsResponse>> getTransactions(
+            @RequestParam(required = false) Optional<Integer> pageParam,
+            @RequestParam(required = false, name = "search") Optional<String> searchParam,
+            @RequestParam(required = false) Optional<LocalDate> fromDate,
+            @RequestParam(required = false) Optional<LocalDate> toDate,
+            Authentication authentication
+    ) {
         UUID userId = UUID.fromString(authentication.getName());
-        List<TransactionDTO> dtos = transactionService.getTransactions(userId, pageParam);
-        Integer totalTransactionsCount = transactionsRepository.countByUserId(userId);
-        if (dtos != null) {
-            TransactionsResponse body = new TransactionsResponse(dtos, totalTransactionsCount);
-            return new ResponseEntity<>(new ApiResponse<>(body), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+
+        List<TransactionDTO> dtos = transactionService.getTransactions(
+                userId,
+                pageParam,
+                searchParam,
+                fromDate,
+                toDate
+        );
+
+        Integer totalTransactionsCount = transactionsRepository.countFilteredTransactions(
+                userId,
+                searchParam.filter(s -> !s.isBlank()).orElse(null),
+                fromDate.orElse(null),
+                toDate.orElse(null)
+        );
+
+        TransactionsResponse body = new TransactionsResponse(dtos, totalTransactionsCount);
+        return new ResponseEntity<>(new ApiResponse<>(body), HttpStatus.OK);
     }
-
-//    @GetMapping("/latest-import-data")
-//    public ResponseEntity<LatestImportData> getLatestImportData(Authentication authentication) {
-//        UUID userId = UUID.fromString(authentication.getName());
-//        LatestImportData importData = transactionService.get
-//        List<CategorySummaryDTO> monthlySummary = transactionService.getCategorySummary(userId);
-//        return ResponseEntity.ok();
-//    }
-
-
 
     @GetMapping("/summary")
     public ResponseEntity<TransactionSummaryResponse> getCategorySummary(Authentication authentication) {

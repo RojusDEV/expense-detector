@@ -1,59 +1,161 @@
-import { useRef, useMemo, useCallback } from "react";
-import { format } from "date-fns";
+import { useRef, useMemo, useCallback, useEffect, useState } from "react";
+import { endOfDay, format, isValid, parseISO, startOfDay } from "date-fns";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { getTransactionsRequest } from "@/shared/api/transactionsApi";
+import { useSearchParams } from "react-router";
+import {
+  getTransactionsRequest,
+  type TransactionRequestFilters,
+} from "@/shared/api/transactionsApi";
 import TransactionsFilters from "../components/TransactionsFilters";
 import { useFilterStore } from "@/shared/store/filterStore";
 import TransactionsSkeleton from "../components/TransactionsSkeleton";
 import { capitalize, colors } from "@/lib/utils";
 
 export const TransactionsPage = () => {
+  const filters = useFilterStore((state) => state.filters);
+  const setFilters = useFilterStore((state) => state.setFilters);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filtersReady, setFiltersReady] = useState(false);
+  const lastFetchedFilters = useRef<TransactionRequestFilters | undefined>(
+    undefined,
+  );
+  const loadedDateBounds = useRef<
+    { oldest: number; newest: number } | undefined
+  >(undefined);
+
+  useEffect(() => {
+    const parseDate = (value: string | null) => {
+      if (!value) return undefined;
+      const date = parseISO(value);
+      return isValid(date) ? date : undefined;
+    };
+    const parseAmount = (value: string | null) => {
+      if (!value) return null;
+      const amount = Number(value);
+      return Number.isFinite(amount) ? amount : null;
+    };
+
+    setFilters({
+      fromDate: parseDate(searchParams.get("from")),
+      toDate: parseDate(searchParams.get("to")),
+      minAmount: parseAmount(searchParams.get("min")),
+      maxAmount: parseAmount(searchParams.get("max")),
+      search: searchParams.get("search") || null,
+    });
+    setFiltersReady(true);
+  }, [searchParams, setFilters]);
+
+  useEffect(() => {
+    if (!filtersReady) return;
+
+    const nextParams = new URLSearchParams();
+    if (filters.search?.trim()) nextParams.set("search", filters.search.trim());
+    if (filters.fromDate) nextParams.set("from", format(filters.fromDate, "yyyy-MM-dd"));
+    if (filters.toDate) nextParams.set("to", format(filters.toDate, "yyyy-MM-dd"));
+    if (filters.minAmount !== null) nextParams.set("min", String(filters.minAmount));
+    if (filters.maxAmount !== null) nextParams.set("max", String(filters.maxAmount));
+
+    if (nextParams.toString() !== searchParams.toString()) {
+      setSearchParams(nextParams, { replace: true });
+    }
+  }, [filters, filtersReady, searchParams, setSearchParams]);
+
+  const queryFilters = useMemo(
+    () => ({
+      ...filters,
+      search: filters.search?.trim() ?? "",
+    }),
+    [filters],
+  );
+
+  const sameNonDateFilters =
+    lastFetchedFilters.current &&
+    JSON.stringify({
+      ...lastFetchedFilters.current,
+      fromDate: undefined,
+      toDate: undefined,
+    }) ===
+      JSON.stringify({
+        ...queryFilters,
+        fromDate: undefined,
+        toDate: undefined,
+      });
+
+  const dateRangeIsLoaded =
+    loadedDateBounds.current &&
+    sameNonDateFilters &&
+    (filters.fromDate === undefined ||
+      startOfDay(filters.fromDate).getTime() >=
+        loadedDateBounds.current.oldest) &&
+    (filters.toDate === undefined ||
+      endOfDay(filters.toDate).getTime() <= loadedDateBounds.current.newest);
+
+  const requestFilters = dateRangeIsLoaded
+    ? lastFetchedFilters.current!
+    : queryFilters;
+
   const {
     data,
     isLoading,
     fetchNextPage,
     hasNextPage,
-    isFetching,
     error,
     status,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: ["transactions"],
-    queryFn: ({ pageParam }) => getTransactionsRequest({ offset: pageParam }),
+    queryKey: ["transactions", requestFilters],
+    queryFn: async ({ pageParam }) => {
+      const isNewFilterRequest =
+        JSON.stringify(lastFetchedFilters.current) !==
+        JSON.stringify(requestFilters);
+
+      if (isNewFilterRequest) loadedDateBounds.current = undefined;
+      lastFetchedFilters.current = requestFilters;
+      const page = await getTransactionsRequest({
+        offset: pageParam,
+        ...requestFilters,
+      });
+      const pageDates = page.data.transactions.map((transaction) =>
+        new Date(transaction.transactionDate).getTime(),
+      );
+
+      if (pageDates.length) {
+        loadedDateBounds.current = {
+          oldest: Math.min(
+            loadedDateBounds.current?.oldest ?? Infinity,
+            ...pageDates,
+          ),
+          newest: Math.max(
+            loadedDateBounds.current?.newest ?? -Infinity,
+            ...pageDates,
+          ),
+        };
+      }
+
+      return page;
+    },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextPage,
+    enabled: filtersReady,
     staleTime: 1000 * 60 * 5,
   });
-
-  const filters = useFilterStore((state) => state.filters);
 
   const flattenedTransactions = useMemo(
     () => (data ? data.pages.flatMap((page) => page.data.transactions) : []),
     [data],
   );
 
-  const filteredTransactionData = useMemo(() => {
-    return flattenedTransactions.filter((t) => {
-      const txDate = new Date(t.transactionDate);
-
-      if (filters.fromDate && txDate < filters.fromDate) return false;
-      if (filters.toDate && txDate > filters.toDate) return false;
-      if (filters.minAmount !== null && t.amount < filters.minAmount)
-        return false;
-      if (filters.maxAmount !== null && t.amount > filters.maxAmount)
-        return false;
-      if (
-        filters.search &&
-        !t.merchantName?.toLowerCase().includes(filters.search.toLowerCase()) &&
-        !t.rawDescription?.toLowerCase().includes(filters.search.toLowerCase())
-      ) {
-        return false;
-      }
-
-      return true;
-    });
-  }, [flattenedTransactions, filters]);
-
+  const displayedTransactions = dateRangeIsLoaded
+    ? flattenedTransactions.filter((transaction) => {
+        const transactionTime = new Date(transaction.transactionDate).getTime();
+        return (
+          (!filters.fromDate ||
+            transactionTime >= startOfDay(filters.fromDate).getTime()) &&
+          (!filters.toDate ||
+            transactionTime <= endOfDay(filters.toDate).getTime())
+        );
+      })
+    : flattenedTransactions;
   const observer = useRef<IntersectionObserver | undefined>(undefined);
 
   const lastElementRef = useCallback(
@@ -61,13 +163,13 @@ export const TransactionsPage = () => {
       if (isLoading) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetching) {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
           fetchNextPage();
         }
       });
       if (node) observer.current.observe(node);
     },
-    [isLoading, hasNextPage, isFetching, fetchNextPage],
+    [isLoading, hasNextPage, isFetchingNextPage, fetchNextPage],
   );
 
   if (status === "error")
@@ -101,8 +203,8 @@ export const TransactionsPage = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-(--input-outline)">
-            {filteredTransactionData.map((transaction, index) => {
-              const isLast = index === flattenedTransactions.length - 1;
+            {displayedTransactions.map((transaction, index) => {
+              const isLast = index === displayedTransactions.length - 1;
               const {
                 id,
                 amount,

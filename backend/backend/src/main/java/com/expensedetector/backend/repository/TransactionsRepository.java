@@ -6,7 +6,6 @@ import com.expensedetector.backend.model.DTO.LatestTransactionsDto;
 import com.expensedetector.backend.model.DTO.MonthlyTrendDTO;
 import com.expensedetector.backend.model.entity.CategorySummaryDTO;
 import com.expensedetector.backend.model.entity.Transaction;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -14,20 +13,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 @Repository
 public interface TransactionsRepository extends JpaRepository<Transaction, UUID> {
-    Boolean existsByUserIdAndTransactionDateAndAmountAndRawDescription(UUID userId, LocalDate transactionDate, BigDecimal amount, String rawDescription);
     @Query("SELECT t FROM Transaction t LEFT JOIN FETCH t.category LEFT JOIN FETCH t.merchant WHERE t.userId = :userId")
     List<Transaction> findByUserId(@Param("userId") UUID userId);
 
-    @Query("SELECT t FROM Transaction t LEFT JOIN FETCH t.category LEFT JOIN FETCH t.merchant WHERE t.userId = :userId")
-    List<Transaction> findByUserId(@Param("userId") UUID userId,
-                                   PageRequest pageable);
     @Query("SELECT t.categoryId, DATE_TRUNC('month', t.transactionDate) AS month, sum(t.amount) FROM Transaction t where t.userId = :userId GROUP BY t.categoryId, DATE_TRUNC('month', t.transactionDate) order by t.categoryId, DATE_TRUNC('month', t.transactionDate)")
     List<CategorySumByMonthDTO> findByMonth(@Param("userId") UUID userId);
 
@@ -37,10 +31,80 @@ public interface TransactionsRepository extends JpaRepository<Transaction, UUID>
     LEFT JOIN category c ON c.id = t.category_id
     WHERE t.transaction_date > date_trunc('month', CURRENT_DATE) AND t.is_expense IS TRUE
       AND t.user_id = :userId
-    GROUP BY c.id, c.name 
+    GROUP BY c.id, c.name
     ORDER BY c.id
     """, nativeQuery = true)
     List<CategorySummaryDTO> getMonthSummary(@Param("userId") UUID userId);
+
+
+    @Query(value = """
+SELECT t.* FROM transactions t
+LEFT JOIN category c ON c.id = t.category_id
+LEFT JOIN merchant m ON m.id = t.merchant_id
+WHERE t.user_id = :userId
+  AND (CAST(:fromDate AS date) IS NULL OR t.transaction_date >= CAST(:fromDate AS date))
+  AND (CAST(:toDate AS date) IS NULL OR t.transaction_date <= CAST(:toDate AS date))
+  AND (
+      CAST(:search AS text) IS NULL
+      OR t.raw_description ILIKE CONCAT('%', CAST(:search AS text), '%')
+      OR t.description ILIKE CONCAT('%', CAST(:search AS text), '%')
+      OR c.name ILIKE CONCAT('%', CAST(:search AS text), '%')
+      OR m.name ILIKE CONCAT('%', CAST(:search AS text), '%')
+  )
+ORDER BY t.transaction_date DESC
+""", nativeQuery = true)
+    List<Transaction> findFilteredTransactions(
+            @Param("userId") UUID userId,
+            @Param("search") String search,
+            @Param("fromDate") LocalDate fromDate,
+            @Param("toDate") LocalDate toDate,
+            Pageable pageable
+    );
+
+    @Query(value = """
+SELECT t.* FROM transactions t
+LEFT JOIN category c ON c.id = t.category_id
+LEFT JOIN merchant m ON m.id = t.merchant_id
+WHERE t.user_id = :userId
+  AND (CAST(:fromDate AS date) IS NULL OR t.transaction_date >= CAST(:fromDate AS date))
+  AND (CAST(:toDate AS date) IS NULL OR t.transaction_date <= CAST(:toDate AS date))
+  AND (
+      CAST(:search AS text) IS NULL
+      OR t.raw_description ILIKE CONCAT('%', CAST(:search AS text), '%')
+      OR t.description ILIKE CONCAT('%', CAST(:search AS text), '%')
+      OR c.name ILIKE CONCAT('%', CAST(:search AS text), '%')
+      OR m.name ILIKE CONCAT('%', CAST(:search AS text), '%')
+  )
+ORDER BY t.transaction_date DESC
+""", nativeQuery = true)
+    List<Transaction> findFilteredTransactions(
+            @Param("userId") UUID userId,
+            @Param("search") String search,
+            @Param("fromDate") LocalDate fromDate,
+            @Param("toDate") LocalDate toDate
+    );
+
+    @Query(value = """
+SELECT COUNT(*) FROM transactions t
+LEFT JOIN category c ON c.id = t.category_id
+LEFT JOIN merchant m ON m.id = t.merchant_id
+WHERE t.user_id = :userId
+  AND (CAST(:fromDate AS date) IS NULL OR t.transaction_date >= CAST(:fromDate AS date))
+  AND (CAST(:toDate AS date) IS NULL OR t.transaction_date <= CAST(:toDate AS date))
+  AND (
+      CAST(:search AS text) IS NULL
+      OR t.raw_description ILIKE CONCAT('%', CAST(:search AS text), '%')
+      OR t.description ILIKE CONCAT('%', CAST(:search AS text), '%')
+      OR c.name ILIKE CONCAT('%', CAST(:search AS text), '%')
+      OR m.name ILIKE CONCAT('%', CAST(:search AS text), '%')
+  )
+""", nativeQuery = true)
+    Integer countFilteredTransactions(
+            @Param("userId") UUID userId,
+            @Param("search") String search,
+            @Param("fromDate") LocalDate fromDate,
+            @Param("toDate") LocalDate toDate
+    );
 
 
     @Query(value = """
@@ -78,8 +142,8 @@ ORDER BY t.transaction_date DESC LIMIT :size""", nativeQuery = true)
     List<LatestTransactionsDto> getLatestTransactions(@Param("userId") UUID userId, Integer size);
 
 
-    List<Transaction> findByUserIdOrderByTransactionDateDesc(UUID userId, Pageable pageable);
-    List<Transaction> findByUserIdOrderByTransactionDateDesc(UUID userId);
+//    List<Transaction> findByUserIdOrderByTransactionDateDesc(UUID userId, Pageable pageable);
+//    List<Transaction> findByUserIdOrderByTransactionDateDesc(UUID userId);
 
     @Query(value = """
     WITH months AS (
@@ -110,7 +174,6 @@ ORDER BY t.transaction_date DESC LIMIT :size""", nativeQuery = true)
     List<MonthlyTrendDTO> getMonthlyTrends(@Param("userId") UUID userId);
 
 
-    Integer countByUserId(UUID userId);
     @Modifying
     @Query("update Transaction t set t.categoryId = :categoryId where t.userId = :userId and t.id = :transactionId")
     void updateCategory(@Param("userId") UUID userId, UUID transactionId, Integer categoryId);

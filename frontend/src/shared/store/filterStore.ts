@@ -24,6 +24,8 @@ type Store = {
     value: TransactionFilters[K],
   ) => void;
 
+  setFilters: (filters: TransactionFilters) => void;
+
   clearFilters: () => void;
 };
 
@@ -37,6 +39,8 @@ export const useFilterStore = create<Store>((set) => ({
         [key]: value,
       },
     })),
+
+  setFilters: (filters) => set({ filters }),
 
   clearFilters: () => set({ filters: defaultFilters }),
 }));

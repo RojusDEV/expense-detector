@@ -7,6 +7,7 @@ import com.expensedetector.backend.repository.TransactionsRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,15 +20,40 @@ public class TransactionService {
         this.transactionsRepository = transactionsRepository;
     }
 
-    public List<TransactionDTO> getTransactions(UUID userId, Optional<Integer> pageParam) {
+    public List<TransactionDTO> getTransactions(
+            UUID userId,
+            Optional<Integer> pageParam,
+            Optional<String> search,
+            Optional<LocalDate> fromDate,
+            Optional<LocalDate> toDate
+    ) {
+        String searchValue = search
+                .filter(s -> !s.isBlank())
+                .orElse(null);
+
+        LocalDate from = fromDate.orElse(null);
+        LocalDate to = toDate.orElse(null);
+
         List<Transaction> transactions = pageParam
-                .map(page -> transactionsRepository.findByUserIdOrderByTransactionDateDesc(userId, PageRequest.of(page, 10)))
-                .orElseGet(() -> transactionsRepository.findByUserIdOrderByTransactionDateDesc(userId));
+                .map(page -> transactionsRepository.findFilteredTransactions(
+                        userId,
+                        searchValue,
+                        from,
+                        to,
+                        PageRequest.of(page, 10)
+                ))
+                .orElseGet(() -> transactionsRepository.findFilteredTransactions(
+                        userId,
+                        searchValue,
+                        from,
+                        to
+                ));
 
         return transactions.stream()
                 .map(this::toDto)
                 .toList();
     }
+
 
     public List<CategorySummaryDTO> getCategorySummary(UUID userId) {
         return transactionsRepository.getMonthSummary(userId);
