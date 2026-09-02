@@ -3,26 +3,28 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+
   application:
     name: backend
+
   datasource:
     url: jdbc:postgresql://ep-falling-math-zaicaqnz.c-2.eu-west-2.aws.neon.tech/expense_detector?sslmode=require
     username: ${DB_USER}
     password: ${DB_PASSWORD}
+
   jpa:
     hibernate:
       ddl-auto: validate
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
     properties:
-      hibernate.hibernate.generate_statistics: true
       hibernate:
-        order_inserts=true:
-        order_updates=true:
+        generate_statistics: true
+        order_inserts: true
+        order_updates: true
         jdbc:
-          batch_size=50:
-          batch_versioned_data=true:
-
+          batch_size: 50
+          batch_versioned_data: true
 
   flyway:
     enabled: true
@@ -44,5 +46,3 @@ logging:
           schema: DEBUG
         SQL: DEBUG
         stat: DEBUG
-
-
