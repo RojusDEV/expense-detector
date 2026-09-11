@@ -54,7 +54,7 @@ public class JwtUtils {
                 .maxAge(0)
                 .httpOnly(true)
                 .secure(true)
-                .sameSite("Strict")
+                .sameSite("none")
                 .build();
     }
 
@@ -84,7 +84,7 @@ public class JwtUtils {
                 .maxAge(Duration.ofMillis(refreshExpirationMs))
                 .httpOnly(true)
                 .secure(true)
-                .sameSite("Strict")
+                .sameSite("none")
                 .build();
     }
 
