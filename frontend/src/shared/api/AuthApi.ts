@@ -7,7 +7,7 @@ interface CustomRequestConfig extends InternalAxiosRequestConfig {
 
 export const myApi = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
-  timeout: 10000,
+  timeout: 30000,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
@@ -17,7 +17,7 @@ export const myApi = axios.create({
 
 export const myAuthApi = axios.create({
   baseURL: `${import.meta.env.VITE_BASE_URL}/auth`,
-  timeout: 10000,
+  timeout: 30000,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
