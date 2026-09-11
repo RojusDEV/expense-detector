@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/expense_detector
+    username: expense_user
+    password: expense_pass
+  jpa:
+    hibernate:
+      ddl-auto: none
+  flyway:
+    enabled: true

@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://ep-falling-math-zaicaqnz.c-2.eu-west-2.aws.neon.tech/expense_detector?sslmode=require
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
