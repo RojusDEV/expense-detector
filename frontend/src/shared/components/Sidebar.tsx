@@ -242,7 +242,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
             </button>
 
             {/* User */}
-            <button className="mt-3 flex w-full cursor-pointer items-center gap-3 rounded-xl border border-(--sidebar-outline) bg-(--card-background) p-2.5">
+            <div className="mt-3 flex w-full cursor-pointer items-center gap-3 rounded-xl border border-(--sidebar-outline) bg-(--card-background) p-2.5">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(52,211,153,0.15)] text-sm font-semibold text-[#34D399]">
                 {userStore?.name.charAt(0).toUpperCase()}
               </span>
@@ -260,7 +260,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
               >
                 <GoSignOut />
               </button>
-            </button>
+            </div>
           </div>
         </div>
       </div>
