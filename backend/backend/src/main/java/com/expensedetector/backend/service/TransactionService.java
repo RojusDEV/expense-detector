@@ -6,6 +6,7 @@ import com.expensedetector.backend.model.entity.Transaction;
 import com.expensedetector.backend.repository.TransactionsRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,7 +20,7 @@ public class TransactionService {
     public TransactionService(TransactionsRepository transactionsRepository) {
         this.transactionsRepository = transactionsRepository;
     }
-
+    @Transactional(readOnly = true)
     public List<TransactionDTO> getTransactions(
             UUID userId,
             Optional<Integer> pageParam,
