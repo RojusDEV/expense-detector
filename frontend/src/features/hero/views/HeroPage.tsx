@@ -2,6 +2,7 @@ import { useNavigate } from "react-router";
 import NavBar from "../components/NavBar";
 import { FaCircleCheck, FaArrowRightLong, FaPlay } from "react-icons/fa6";
 import { myAuthApi } from "@/shared/api/AuthApi";
+import dashboardImg from "@/assets/dashboardImg.png";
 import { useAuth } from "@/shared/hooks/AuthContext";
 export const HeroPage = () => {
   const navigate = useNavigate();
@@ -69,7 +70,7 @@ export const HeroPage = () => {
             </ul>
           </div>
           <div className="">
-            <img src="src/assets/dashboardImg.png" alt="" />
+            <img src={dashboardImg} alt="" />
           </div>
         </div>
       </main>
