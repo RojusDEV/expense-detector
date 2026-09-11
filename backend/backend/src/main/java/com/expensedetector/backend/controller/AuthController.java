@@ -127,7 +127,7 @@
                     .maxAge(600)
                     .httpOnly(true)
                     .secure(true)
-                    .sameSite("Strict")
+                    .sameSite("None")
                     .build();
 
 
