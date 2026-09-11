@@ -45,6 +45,8 @@ public class JwtUtils {
                 .path("/api")
                 .maxAge(600)
                 .httpOnly(true)
+                .secure(true)
+                .sameSite("none")
                 .build();
     }
 
@@ -59,8 +61,12 @@ public class JwtUtils {
     }
 
     public ResponseCookie getCleanJwtCookie() {
-        return ResponseCookie.from(jwtCookieName, null)
+        return ResponseCookie.from(jwtCookieName, "")
                 .path("/api")
+                .maxAge(0)
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("none")
                 .build();
     }
 
