@@ -1,5 +1,4 @@
 import fullLogo from "@/assets/logos/fullLogo.svg";
-import { useIsAuthenticated } from "@/lib/utils";
 import { useAuth } from "@/shared/hooks/AuthContext";
 import { useEffect, useState } from "react";
 import { LuMoonStar } from "react-icons/lu";
