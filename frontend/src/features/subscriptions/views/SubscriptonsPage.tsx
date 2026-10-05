@@ -1,5 +1,6 @@
 import { capitalize, formatDate } from "@/lib/utils";
 import { getSubscriptionsRequest } from "@/shared/api/subsriptionsApi";
+import { SubscriptionsSkeleton } from "@/shared/components/loadingStates/SubscriptionsSkeleton";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 
@@ -31,11 +32,7 @@ const SubscriptonsPage = () => {
   }
 
   if (isLoading) {
-    return (
-      <span className="font-bold text-yellow-300">
-        Loading subscriptions...
-      </span>
-    );
+    return <SubscriptionsSkeleton />;
   }
 
   return (

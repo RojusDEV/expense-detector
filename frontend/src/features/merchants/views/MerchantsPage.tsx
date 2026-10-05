@@ -1,5 +1,6 @@
 import { capitalize, colors } from "@/lib/utils";
 import { getMerchantList } from "@/shared/api/merchantApi";
+import { MerchantsSkeleton } from "@/shared/components/loadingStates/MerchantsSkeleton";
 import { useQuery } from "@tanstack/react-query";
 
 const MerchantsPage = () => {
@@ -14,7 +15,7 @@ const MerchantsPage = () => {
   });
 
   if (isLoading) {
-    return <span>Loading...</span>;
+    return <MerchantsSkeleton />;
   }
 
   if (isError) {

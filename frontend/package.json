@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:ui": "vitest --ui",
-    "coverage": "vitest --coverage"
+    "coverage": "vitest --coverage",
+    "test:e2e": "playwright test",
+    "e2e:install": "playwright install --with-deps"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",
@@ -27,6 +29,7 @@
     "chart.js": "^4.5.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cn": "^0.2.6",
     "date-fns": "^4.4.0",
     "lucide-react": "^1.27.0",
     "radix-ui": "^1.5.0",

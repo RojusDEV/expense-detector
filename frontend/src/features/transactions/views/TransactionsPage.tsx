@@ -177,7 +177,7 @@ export const TransactionsPage = () => {
   if (status === "pending") return <TransactionsSkeleton />;
 
   const latestTransactionDate =
-    data?.pages[0]?.data.transactions[0].transactionDate;
+    data?.pages[0]?.data.transactions[0]?.transactionDate;
 
   return (
     <div className="bg-(--bg-primary-dashboard) px-8 py-7">
@@ -186,9 +186,9 @@ export const TransactionsPage = () => {
       </h1>
       <h2 className="mt-2 mb-5 font-normal text-(--text-gray-400)">
         {data?.pages[0]?.data.transactionsCount ?? 0} transakcijos ·{" "}
-        {latestTransactionDate
-          ? format(new Date(latestTransactionDate), "yyyy-MM")
-          : "-"}
+        {latestTransactionDate === undefined
+          ? "-"
+          : format(new Date(latestTransactionDate), "yyyy-MM")}
       </h2>
       <TransactionsFilters />
       <div className="mt-4 max-w-screen overflow-auto rounded-lg border-2 border-(--input-outline) bg-(--card-background) p-5">
@@ -203,7 +203,7 @@ export const TransactionsPage = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-(--input-outline)">
-            {displayedTransactions.map((transaction, index) => {
+            {displayedTransactions && displayedTransactions.map((transaction, index) => {
               const isLast = index === displayedTransactions.length - 1;
               const {
                 id,
