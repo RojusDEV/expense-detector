@@ -17,7 +17,7 @@ import {
 } from "react-icons/lu";
 import { useUserStore } from "../store/userStore";
 import { capitalize } from "../../lib/utils";
-import { signoutApi } from "../api/AuthApi";
+import { useAuth } from "../hooks/AuthContext";
 type SidebarProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -32,6 +32,7 @@ type LinkItem = {
 
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [search, setSearch] = useState("");
   const userStore = useUserStore((store) => store.user);
 
@@ -65,9 +66,8 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
   const handleSignout = async () => {
     try {
-      const response = await signoutApi();
-      await navigate("/");
-      console.log(response);
+      await logout();
+      navigate("/");
     } catch (err) {
       console.error(err);
     }
