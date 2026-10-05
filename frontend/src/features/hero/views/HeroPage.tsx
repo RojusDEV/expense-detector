@@ -7,10 +7,10 @@ import { useAuth } from "@/shared/hooks/AuthContext";
 export const HeroPage = () => {
   const navigate = useNavigate();
   const { refetchUser } = useAuth();
+
   const getDemoAccessCookie = async () => {
     try {
       const response = await myAuthApi.post("/demo-login");
-
       if (response.status === 200) {
         await refetchUser();
         navigate("/dashboard");
@@ -33,14 +33,10 @@ export const HeroPage = () => {
               </span>
             </h1>
             <p className="text-[1.0625rem]] text-hero-text-muted mt-5 max-w-[40ch] leading-[1.65]">
-              Driftlytics randa pasikartojančius mokesčius, anomalijas ir tylius
+              Driftlytics atranda pasikartojančius mokesčius, anomalijas ir
               biudžeto nutekėjimus, kurių nepastebite kasdien.
             </p>
             <div className="mt-8 flex flex-col items-start gap-3">
-              <button className="border-hero-control-border flex cursor-pointer items-center gap-2.25 rounded-[0.6875rem] border px-5.5 py-3.5 font-semibold text-white [background:var(--hero-button-accent-bg)]">
-                Pradėti nemokamai
-                <FaArrowRightLong />
-              </button>
               <button
                 className="bg-color-hero-card-bg border-hero-control-border flex cursor-pointer items-center gap-2.25 rounded-[0.6875rem] border px-5.5 py-3.5"
                 onClick={() => getDemoAccessCookie()}
@@ -54,12 +50,12 @@ export const HeroPage = () => {
             <ul className="mt-12 flex flex-col gap-2.5">
               <li className="text-hero-text-bullet flex items-center gap-2.5 text-[14px]">
                 <FaCircleCheck color="#2ee6a0" />
-                Veikia su Swedbank, SEB ir Revolut išrašais
+                Veikia kolkas tik su Swedbank bankininkyste
               </li>
               <hr />
               <li className="text-hero-text-bullet flex items-center gap-2.5 text-[14px]">
                 <FaCircleCheck color="#2ee6a0" />
-                Duomenys apdorojami lokaliai ir lieka jūsų
+                Detali ataskaita nuo išlaidų iki patarimų kaip sutaupyti
               </li>
               <hr />
               <li className="text-hero-text-bullet flex items-center gap-2.5 text-[14px]">

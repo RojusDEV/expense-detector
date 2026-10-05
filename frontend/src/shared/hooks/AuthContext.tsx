@@ -49,9 +49,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const logout = useCallback(async () => {
-    await myApi.post("/auth/signout");
-    clearUser();
-  }, []);
+    try {
+      await myApi.post("/auth/signout");
+    } finally {
+      clearUser();
+    }
+  }, [clearUser]);
 
   return (
     <AuthContext.Provider

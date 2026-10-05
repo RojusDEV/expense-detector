@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/shared/store/authStore";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -14,6 +15,17 @@ export const formatDate = (date: Date) => {
   const month = String(date.getMonth() + 1).padStart(2, "0");
 
   return `${year}-${month}`;
+};
+
+export const useIsAuthenticated = () => {
+  const authenticated = useAuthStore((state) => state.isAuthenticated);
+  return authenticated;
+  // const [authenticated, setAuthenticated] = useState(false);
+
+  // useEffect(() => {
+
+  //   return () => {};
+  // }, [])
 };
 
 export const capitalize = (word: String | null | undefined) => {
@@ -34,5 +46,5 @@ export const colors: Record<string, string> = {
   kelionės: "bg-teal-500/20 text-teal-400",
   draudimas: "bg-yellow-500/20 text-yellow-400",
   apsipirkimas: "bg-rose-500/20 text-rose-400",
-  prenumeratos: "bg-pink-700/20 text-pink-400"
+  prenumeratos: "bg-pink-700/20 text-pink-400",
 };

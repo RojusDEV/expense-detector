@@ -14,13 +14,15 @@ type Inputs = {
 const LoginPage = () => {
   const navigate = useNavigate();
   const [apiError, setApiError] = useState<string | null>(null);
-
+  
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<Inputs>();
+
   const { login } = useAuth();
+
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
       const response = await loginApi(data);
