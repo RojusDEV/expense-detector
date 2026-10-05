@@ -1,10 +1,14 @@
 import fullLogo from "@/assets/logos/fullLogo.svg";
+import { useIsAuthenticated } from "@/lib/utils";
+import { useAuth } from "@/shared/hooks/AuthContext";
 import { useEffect, useState } from "react";
 import { LuMoonStar } from "react-icons/lu";
 import { useNavigate } from "react-router";
 
 const NavBar = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
+
   const [isDark, setIsDark] = useState(() => {
     const stored = localStorage.getItem("theme");
     if (stored) return stored === "dark";
@@ -35,18 +39,29 @@ const NavBar = () => {
           >
             <LuMoonStar />
           </button>
-          <button
-            className="border-hero-control-border text-hero-text-primary cursor-pointer rounded-[9px] border px-4 py-2.25"
-            onClick={() => navigate("/auth/login")}
-          >
-            Prisijungti
-          </button>
-          <button
-            className="bg-hero-btn-dark-bg text-hero-btn-dark-text cursor-pointer rounded-[9px] px-4.5 py-2.25"
-            onClick={() => navigate("/dashboard")}
-          >
-            Pradėti nemokamai
-          </button>
+          {user && !loading ? (
+            <button
+              className="border-hero-control-border text-hero-text-primary cursor-pointer rounded-[9px] border px-4 py-2.25"
+              onClick={() => navigate("/dashboard")}
+            >
+              Skydelis
+            </button>
+          ) : (
+            <>
+              <button
+                className="border-hero-control-border text-hero-text-primary cursor-pointer rounded-[9px] border px-4 py-2.25"
+                onClick={() => navigate("/auth/login")}
+              >
+                Prisijungti
+              </button>
+              <button
+                className="bg-hero-btn-dark-bg text-hero-btn-dark-text cursor-pointer rounded-[9px] px-4.5 py-2.25"
+                onClick={() => navigate("/dashboard")}
+              >
+                Registruotis
+              </button>
+            </>
+          )}
         </div>
       </div>
     </nav>
